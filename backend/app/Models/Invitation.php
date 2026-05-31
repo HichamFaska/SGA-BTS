@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 
 class Invitation extends Model {
     
@@ -26,5 +27,10 @@ class Invitation extends Model {
 
     public function invitedBy(): belongsTo {
         return $this->belongsTo(User::class, 'invited_by');
+    }
+
+    public function scopeValid(Builder $query){
+        return $query->whereNull('accepted_at')
+            ->where('expires_at', '>', now());
     }
 }
