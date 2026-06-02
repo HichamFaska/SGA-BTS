@@ -2,23 +2,27 @@
 
 namespace App\Providers;
 
+use App\Models\Invitation;
+use App\Models\Teacher;
+use App\Models\User;
+use App\Models\Student;
+use App\Policies\InvitationPolicy;
+use App\Policies\TeacherPolicy;
+use App\Policies\UserPolicy;
+use App\Policies\StudentPolicy;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
-class AppServiceProvider extends ServiceProvider
-{
-    /**
-     * Register any application services.
-     */
-    public function register(): void
-    {
+class AppServiceProvider extends ServiceProvider {
+
+    public function register(): void{
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
-    public function boot(): void
-    {
-        //
+    public function boot(): void {
+        Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(Teacher::class, TeacherPolicy::class);
+        Gate::policy(Student::class, StudentPolicy::class);
+        Gate::policy(Invitation::class, InvitationPolicy::class);
     }
 }
