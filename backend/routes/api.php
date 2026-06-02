@@ -1,8 +1,13 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
+
+Route::post('login', [AuthController::class, 'login'])
+    ->middleware('throttle:10,1')
+    ->name('auth.login');
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -19,6 +24,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('students/{student}', [StudentController::class, 'show'])->name('students.show');
     Route::put('students/{student}', [StudentController::class, 'update'])->name('students.update');
     Route::delete('students/{student}', [StudentController::class, 'destroy'])->name('students.destroy');
+
+    Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');
+    Route::get('me', [AuthController::class, 'me'])->name('auth.me');
 });
 
 Route::get('invitations/{token}', [TeacherController::class, 'showByToken'])->name('invitations.show');
