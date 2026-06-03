@@ -39,7 +39,9 @@ class AuthController extends Controller {
         $user = $request->user();
 
         if (!$user) {
-            return $this->errorResponse('Utilisateur non authentifié.', 401);
+            return $this->successResponse([
+                'user' => null,
+            ], 'Utilisateur non authentifié.', 200);
         }
 
         return $this->successResponse([

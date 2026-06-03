@@ -9,6 +9,8 @@ Route::post('login', [AuthController::class, 'login'])
     ->middleware('throttle:10,1')
     ->name('auth.login');
 
+Route::get('me', [AuthController::class, 'me'])->name('auth.me');
+
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('teachers', [TeacherController::class, 'index'])->name('teachers.index');
@@ -26,7 +28,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('students/{student}', [StudentController::class, 'destroy'])->name('students.destroy');
 
     Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');
-    Route::get('me', [AuthController::class, 'me'])->name('auth.me');
 });
 
 Route::get('invitations/{token}', [TeacherController::class, 'showByToken'])->name('invitations.show');
