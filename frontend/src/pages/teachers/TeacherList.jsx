@@ -21,6 +21,10 @@ import {
 } from "@/components/ui/form"
 
 import { useToast } from "@/components/ui/use-toast"
+import {
+    Pagination, PaginationContent, PaginationEllipsis,
+    PaginationItem, PaginationLink, PaginationNext, PaginationPrevious,
+} from "@/components/ui/pagination"
 import teacherService from "@/services/teacherService"
 import { teacherInvitationSchema } from "@/schemas/teacherInvitationSchema"
 import { handleApiErrors } from "@/lib/api-errors"
@@ -39,6 +43,8 @@ export default function TeacherList() {
     const { success: toastSuccess, error: toastError } = useToast()
 
     const [teachers, setTeachers] = useState([])
+    const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0 })
+    const [page, setPage] = useState(1)
     const [loading, setLoading] = useState(true)
     const [showTarget, setShowTarget] = useState(null)
     const [deleteTarget, setDeleteTarget] = useState(null)
@@ -54,11 +60,12 @@ export default function TeacherList() {
         defaultValues,
     })
 
-    const fetchTeachers = async () => {
+    const fetchTeachers = async (p = page) => {
         try {
             setLoading(true)
-            const response = await teacherService.list()
+            const response = await teacherService.list(p)
             setTeachers(response.data.teachers)
+            setMeta(response.data.meta)
         } catch (err) {
             toastError(err?.message ?? "Impossible de charger les professeurs.")
         } finally {
@@ -66,9 +73,9 @@ export default function TeacherList() {
         }
     }
 
-    useEffect(() => { 
-        fetchTeachers() 
-    }, [])
+    useEffect(() => {
+        fetchTeachers(page)
+    }, [page])
 
     const openCreate = () => {
         setEditTarget(null)
@@ -116,7 +123,7 @@ export default function TeacherList() {
                 toastSuccess(response.message)
             }
             closeForm()
-            fetchTeachers()
+            fetchTeachers(page)
         } catch (err) {
             if (!handleApiErrors(err, form.setError)){
                 toastError(err.message)
@@ -131,7 +138,7 @@ export default function TeacherList() {
             const response = await teacherService.remove(deleteTarget.id)
             toastSuccess(response.message)
             setDeleteTarget(null)
-            fetchTeachers()
+            fetchTeachers(page)
         } catch (err) {
             toastError(err.message)
         } finally {
@@ -161,7 +168,7 @@ export default function TeacherList() {
                     <div>
                         <h1 className="text-2xl font-bold">Professeurs</h1>
                         <p className="text-sm text-muted-foreground">
-                            {teachers.length} professeur{teachers.length !== 1 ? "s" : ""}
+                            {meta.total} professeur{meta.total !== 1 ? "s" : ""}
                         </p>
                     </div>
                 </div>
@@ -236,6 +243,45 @@ export default function TeacherList() {
                     </TableBody>
                 </Table>
             </div>
+
+            {meta.last_page > 1 && (
+                <Pagination>
+                    <PaginationContent>
+                        <PaginationItem>
+                            <PaginationPrevious
+                                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                aria-disabled={page === 1}
+                                className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            />
+                        </PaginationItem>
+                        {Array.from({ length: meta.last_page }, (_, i) => i + 1).map((p) => {
+                            if (p === 1 || p === meta.last_page || Math.abs(p - page) <= 1) {
+                                return (
+                                    <PaginationItem key={p}>
+                                        <PaginationLink isActive={p === page} onClick={() => setPage(p)} className="cursor-pointer">
+                                            {p}
+                                        </PaginationLink>
+                                    </PaginationItem>
+                                )
+                            }
+                            if (p === 2 && page > 3) {
+                                return <PaginationItem key="start-ellipsis"><PaginationEllipsis /></PaginationItem>
+                            }
+                            if (p === meta.last_page - 1 && page < meta.last_page - 2) {
+                                return <PaginationItem key="end-ellipsis"><PaginationEllipsis /></PaginationItem>
+                            }
+                            return null
+                        })}
+                        <PaginationItem>
+                            <PaginationNext
+                                onClick={() => setPage((p) => Math.min(meta.last_page, p + 1))}
+                                aria-disabled={page === meta.last_page}
+                                className={page === meta.last_page ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            />
+                        </PaginationItem>
+                    </PaginationContent>
+                </Pagination>
+            )}
 
             {/* Show */}
             <Dialog open={!!showTarget} onOpenChange={(v) => !v && setShowTarget(null)}>

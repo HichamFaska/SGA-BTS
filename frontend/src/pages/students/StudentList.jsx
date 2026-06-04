@@ -23,6 +23,10 @@ import {
 } from "@/components/ui/form"
 
 import { useToast } from "@/components/ui/use-toast"
+import {
+    Pagination, PaginationContent, PaginationEllipsis,
+    PaginationItem, PaginationLink, PaginationNext, PaginationPrevious,
+} from "@/components/ui/pagination"
 import studentService from "@/services/studentService"
 import classeService from "@/services/classeService"
 import { studentSchema } from "@/schemas/studentSchema"
@@ -42,6 +46,8 @@ export default function StudentList() {
     const { success: toastSuccess, error: toastError } = useToast()
 
     const [students, setStudents] = useState([])
+    const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0 })
+    const [page, setPage] = useState(1)
     const [classes, setClasses] = useState([])
     const [loading, setLoading] = useState(true)
     const [showTarget, setShowTarget] = useState(null)
@@ -56,11 +62,12 @@ export default function StudentList() {
         defaultValues,
     })
 
-    const fetchStudents = async () => {
+    const fetchStudents = async (p = page) => {
         try {
             setLoading(true)
-            const response = await studentService.list()
+            const response = await studentService.list(p)
             setStudents(response.data.students)
+            setMeta(response.data.meta)
         } catch (err) {
             toastError(err?.message ?? "Impossible de charger les étudiants.")
         } finally {
@@ -78,7 +85,10 @@ export default function StudentList() {
     }
 
     useEffect(() => {
-        fetchStudents()
+        fetchStudents(page)
+    }, [page])
+
+    useEffect(() => {
         fetchClasses()
     }, [])
 
@@ -128,7 +138,7 @@ export default function StudentList() {
                 toastSuccess(response.message)
             }
             closeForm()
-            fetchStudents()
+            fetchStudents(page)
         } catch (err) {
             if (!handleApiErrors(err, form.setError)){
                 toastError(err.message)
@@ -143,7 +153,7 @@ export default function StudentList() {
             const response = await studentService.remove(deleteTarget.id)
             toastSuccess(response.message)
             setDeleteTarget(null)
-            fetchStudents()
+            fetchStudents(page)
         } catch (err) {
             toastError(err.message)
         } finally {
@@ -159,7 +169,7 @@ export default function StudentList() {
                     <div>
                         <h1 className="text-2xl font-bold">Étudiants</h1>
                         <p className="text-sm text-muted-foreground">
-                            {students.length} étudiant{students.length !== 1 ? "s" : ""}
+                            {meta.total} étudiant{meta.total !== 1 ? "s" : ""}
                         </p>
                     </div>
                 </div>
@@ -221,6 +231,45 @@ export default function StudentList() {
                     </TableBody>
                 </Table>
             </div>
+
+            {meta.last_page > 1 && (
+                <Pagination>
+                    <PaginationContent>
+                        <PaginationItem>
+                            <PaginationPrevious
+                                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                aria-disabled={page === 1}
+                                className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            />
+                        </PaginationItem>
+                        {Array.from({ length: meta.last_page }, (_, i) => i + 1).map((p) => {
+                            if (p === 1 || p === meta.last_page || Math.abs(p - page) <= 1) {
+                                return (
+                                    <PaginationItem key={p}>
+                                        <PaginationLink isActive={p === page} onClick={() => setPage(p)} className="cursor-pointer">
+                                            {p}
+                                        </PaginationLink>
+                                    </PaginationItem>
+                                )
+                            }
+                            if (p === 2 && page > 3) {
+                                return <PaginationItem key="start-ellipsis"><PaginationEllipsis /></PaginationItem>
+                            }
+                            if (p === meta.last_page - 1 && page < meta.last_page - 2) {
+                                return <PaginationItem key="end-ellipsis"><PaginationEllipsis /></PaginationItem>
+                            }
+                            return null
+                        })}
+                        <PaginationItem>
+                            <PaginationNext
+                                onClick={() => setPage((p) => Math.min(meta.last_page, p + 1))}
+                                aria-disabled={page === meta.last_page}
+                                className={page === meta.last_page ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            />
+                        </PaginationItem>
+                    </PaginationContent>
+                </Pagination>
+            )}
 
             {/* Show */}
             <Dialog open={!!showTarget} onOpenChange={(v) => !v && setShowTarget(null)}>
