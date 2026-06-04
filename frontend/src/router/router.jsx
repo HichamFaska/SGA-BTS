@@ -4,8 +4,19 @@ import GuestGuard from "@/router/guards/GuestGuard"
 import { AuthLayout } from "@/components/layouts/AuthLayout"
 import { AppLayout } from "@/components/layouts/AppLayout"
 import Login from "@/pages/Login"
+import AcceptInvitation from "@/pages/AcceptInvitation"
 import Dashboard from "@/pages/Dashboard"
+import StudentList from "@/pages/students/StudentList"
+import TeacherList from "@/pages/teachers/TeacherList"
+import Absences from "@/pages/Absences"
+import AppSettings from "@/pages/AppSettings"
 import NotFound from "@/pages/NotFound"
+
+const protectedLayout = (
+    <AuthGuard>
+        <AppLayout />
+    </AuthGuard>
+)
 
 const router = createBrowserRouter([
     {
@@ -20,24 +31,24 @@ const router = createBrowserRouter([
             </GuestGuard>
         ),
         children: [
-            {
-                index: true,
-                element: <Login />,
-            },
+            { index: true, element: <Login /> },
         ],
     },
     {
-        path: "/dashboard",
-        element: (
-            <AuthGuard>
-                <AppLayout />
-            </AuthGuard>
-        ),
+        path: "/accept-invitation",
+        element: <AuthLayout />,
         children: [
-            {
-                index: true,
-                element: <Dashboard />,
-            },
+            { index: true, element: <AcceptInvitation /> },
+        ],
+    },
+    {
+        element: protectedLayout,
+        children: [
+            { path: "/dashboard", element: <Dashboard /> },
+            { path: "/students", element: <StudentList /> },
+            { path: "/teachers", element: <TeacherList /> },
+            { path: "/absences", element: <Absences /> },
+            { path: "/settings", element: <AppSettings /> },
         ],
     },
     {
