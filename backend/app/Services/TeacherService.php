@@ -31,7 +31,6 @@ class TeacherService {
             'birth_date' => $data['birth_date'],
             'phone' => $data['phone'],
             'address' => $data['address'],
-            'avatar' => $data['avatar'],
         ]);
         
         return $user->load('teacher');

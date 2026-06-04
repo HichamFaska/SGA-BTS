@@ -18,7 +18,8 @@ class TeacherResource extends JsonResource {
             'address' => $this->address,
             'avatar' => $this->avatar,
             'user' => $this->whenLoaded('user', fn () => [
-                'email' => $this->user->email,
+                'email'  => $this->user->email,
+                'status' => $this->user->email_verified_at ? 'active' : 'pending',
             ]),
             'created_at' => $this->created_at?->toDateTimeString(),
             'updated_at' => $this->updated_at?->toDateTimeString(),
