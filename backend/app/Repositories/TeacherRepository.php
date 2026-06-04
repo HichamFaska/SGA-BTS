@@ -21,6 +21,7 @@ class TeacherRepository {
     }
 
     public function delete(Teacher $teacher): bool {
+        $teacher->user()->delete();
         return $teacher->delete();
     }
 }
