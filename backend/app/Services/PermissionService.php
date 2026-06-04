@@ -10,21 +10,23 @@ use App\Models\User;
 class PermissionService {
 
     public function build(User $user): array {
+        $teacher = $user->teacher;
+
         return [
             'teachers' => [
                 'viewAny' => $user->can('viewAny', Teacher::class),
-                'view' => $user->can('view', Teacher::class),
+                'view' => $teacher ? $user->can('view', $teacher) : false,
                 'create' => $user->can('create', Teacher::class),
-                'update' => $user->can('update', Teacher::class),
-                'delete' => $user->can('delete', Teacher::class),
-                'resendInvitation' => $user->can('update', Teacher::class),
+                'update' => $teacher ? $user->can('update', $teacher) : false,
+                'delete' => $teacher ? $user->can('delete', $teacher) : false,
+                'resendInvitation' => $teacher ? $user->can('resendInvitation', $teacher) : false,
             ],
             'students' => [
                 'viewAny' => $user->can('viewAny', Student::class),
-                'view' => $user->can('view', Student::class),
+                'view' => $user->can('view', new Student()),
                 'create' => $user->can('create', Student::class),
-                'update' => $user->can('update', Student::class),
-                'delete' => $user->can('delete', Student::class),
+                'update' => $user->can('update', new Student()),
+                'delete' => $user->can('delete', new Student()),
             ],
             'invitations' => [
                 'create' => $user->can('create', Invitation::class),
