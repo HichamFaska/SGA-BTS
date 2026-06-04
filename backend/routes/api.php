@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('teachers/{teacher}', [TeacherController::class, 'destroy'])->name('teachers.destroy');
     Route::post('teachers/{teacher}/resend-invitation', [TeacherController::class, 'resend'])
         ->name('teachers.resend-invitation');
+
+    Route::get('classes', [ClasseController::class, 'index'])->name('classes.index');
 
     Route::get('students', [StudentController::class, 'index'])->name('students.index');
     Route::post('students', [StudentController::class, 'store'])->name('students.store');
