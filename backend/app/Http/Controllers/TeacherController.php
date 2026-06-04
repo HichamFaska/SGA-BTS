@@ -71,7 +71,7 @@ class TeacherController extends Controller {
     }
 
     public function resend(Request $request, Teacher $teacher): JsonResponse {
-        $this->authorize('update', $teacher);
+        $this->authorize('resendInvitation', $teacher);
 
         $invitation = $this->invitationService->send(
             $teacher->user,

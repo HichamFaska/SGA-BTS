@@ -17,7 +17,7 @@ class TeacherPolicy {
             return true;
         }
 
-        if($user->isTeacher()){
+        if($teacher && $user->isTeacher()){
             return $teacher->user_id === $user->id;
         }
 
@@ -31,7 +31,7 @@ class TeacherPolicy {
     }
 
     public function update(User $user, Teacher $teacher): bool {
-        if($user->isTeacher()){
+        if($teacher && $user->isTeacher()){
             return $teacher->user_id === $user->id;
         }
 
@@ -42,7 +42,19 @@ class TeacherPolicy {
         return false;
     }
 
-    public function delete(User $user, Teacher $teacher): bool{
+    public function resendInvitation(User $user, Teacher $teacher): bool {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        if ($teacher && $user->isTeacher()) {
+            return $teacher->user_id === $user->id;
+        }
+
+        return false;
+    }
+
+    public function delete(User $user, Teacher $teacher): bool {
         return $user->isAdmin();
     }
 }
