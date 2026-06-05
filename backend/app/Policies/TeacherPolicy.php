@@ -43,15 +43,7 @@ class TeacherPolicy {
     }
 
     public function resendInvitation(User $user, Teacher $teacher): bool {
-        if ($user->isAdmin()) {
-            return true;
-        }
-
-        if ($teacher && $user->isTeacher()) {
-            return $teacher->user_id === $user->id;
-        }
-
-        return false;
+        return $user->isAdmin();
     }
 
     public function delete(User $user, Teacher $teacher): bool {
