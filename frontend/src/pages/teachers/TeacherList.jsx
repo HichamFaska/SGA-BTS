@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Eye, GraduationCap, Loader2, Mail, Plus, Trash2, UserPen } from "lucide-react"
+import { Eye, FileUp, GraduationCap, Loader2, Mail, Plus, Trash2, UserPen } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -26,6 +26,7 @@ import {
     PaginationItem, PaginationLink, PaginationNext, PaginationPrevious,
 } from "@/components/ui/pagination"
 import teacherService from "@/services/teacherService"
+import ImportDialog from "@/components/ImportDialog"
 import { teacherInvitationSchema } from "@/schemas/teacherInvitationSchema"
 import { handleApiErrors } from "@/lib/api-errors"
 
@@ -51,6 +52,7 @@ export default function TeacherList() {
     const [deleting, setDeleting] = useState(false)
     const [resendTarget, setResendTarget] = useState(null)
     const [resending, setResending] = useState(null)
+    const [importOpen, setImportOpen] = useState(false)
     const [formOpen, setFormOpen] = useState(false)
     const [editTarget, setEditTarget] = useState(null)
     const [loadingForm, setLoadingForm] = useState(false)
@@ -172,10 +174,16 @@ export default function TeacherList() {
                         </p>
                     </div>
                 </div>
-                <Button onClick={openCreate}>
-                    <Plus className="mr-2 size-4" />
-                    Inviter un professeur
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button variant="outline" onClick={() => setImportOpen(true)}>
+                        <FileUp className="mr-2 size-4" />
+                        Importer
+                    </Button>
+                    <Button onClick={openCreate}>
+                        <Plus className="mr-2 size-4" />
+                        Inviter un professeur
+                    </Button>
+                </div>
             </div>
 
             <div className="rounded-xl border">
@@ -282,6 +290,13 @@ export default function TeacherList() {
                     </PaginationContent>
                 </Pagination>
             )}
+
+            <ImportDialog
+                open={importOpen}
+                onOpenChange={setImportOpen}
+                type="teachers"
+                onSuccess={() => fetchTeachers(page)}
+            />
 
             {/* Show */}
             <Dialog open={!!showTarget} onOpenChange={(v) => !v && setShowTarget(null)}>

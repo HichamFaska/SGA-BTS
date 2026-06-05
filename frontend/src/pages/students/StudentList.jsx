@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Eye, Loader2, Plus, Trash2, UserPen, Users } from "lucide-react"
+import { Eye, FileUp, Loader2, Plus, Trash2, UserPen, Users } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -31,6 +31,7 @@ import studentService from "@/services/studentService"
 import classeService from "@/services/classeService"
 import { studentSchema } from "@/schemas/studentSchema"
 import { handleApiErrors } from "@/lib/api-errors"
+import ImportDialog from "@/components/ImportDialog"
 
 const defaultValues = {
     first_name: "",
@@ -53,6 +54,7 @@ export default function StudentList() {
     const [showTarget, setShowTarget] = useState(null)
     const [deleteTarget, setDeleteTarget] = useState(null)
     const [deleting, setDeleting] = useState(false)
+    const [importOpen, setImportOpen] = useState(false)
     const [formOpen, setFormOpen] = useState(false)
     const [editTarget, setEditTarget] = useState(null)
     const [loadingForm, setLoadingForm] = useState(false)
@@ -173,13 +175,19 @@ export default function StudentList() {
                         </p>
                     </div>
                 </div>
-                <Button onClick={openCreate}>
-                    <Plus className="mr-2 size-4" />
-                    Ajouter un étudiant
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button variant="outline" onClick={() => setImportOpen(true)}>
+                        <FileUp className="mr-2 size-4" />
+                        Importer
+                    </Button>
+                    <Button onClick={openCreate}>
+                        <Plus className="mr-2 size-4" />
+                        Ajouter un étudiant
+                    </Button>
+                </div>
             </div>
 
-            <div className="rounded-xl border">
+            <div className="rounded-xl border overflow-auto">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -271,6 +279,13 @@ export default function StudentList() {
                 </Pagination>
             )}
 
+            <ImportDialog
+                open={importOpen}
+                onOpenChange={setImportOpen}
+                type="students"
+                onSuccess={() => fetchStudents(page)}
+            />
+
             {/* Show */}
             <Dialog open={!!showTarget} onOpenChange={(v) => !v && setShowTarget(null)}>
                 <DialogContent className="sm:max-w-lg">
@@ -279,11 +294,11 @@ export default function StudentList() {
                     </DialogHeader>
                     <div className="space-y-3 py-2">
                         {[
-                            ["Matricule",        showTarget?.matricule],
-                            ["Classe",           showTarget?.classe?.name],
-                            ["Téléphone",        showTarget?.phone],
+                            ["Matricule", showTarget?.matricule],
+                            ["Classe", showTarget?.classe?.name],
+                            ["Téléphone", showTarget?.phone],
                             ["Date de naissance",showTarget?.birth_date],
-                            ["Adresse",          showTarget?.address],
+                            ["Adresse", showTarget?.address],
                         ].map(([label, value]) => (
                             <div key={label} className="grid grid-cols-2 gap-2 text-sm">
                                 <span className="text-muted-foreground">{label}</span>
