@@ -11,6 +11,7 @@ import TeacherList from "@/pages/teachers/TeacherList"
 import Absences from "@/pages/Absences"
 import AppSettings from "@/pages/AppSettings"
 import NotFound from "@/pages/NotFound"
+import { RouteErrorBoundary } from "@/components/ErrorBoundary"
 
 const protectedLayout = (
     <AuthGuard>
@@ -43,6 +44,7 @@ const router = createBrowserRouter([
     },
     {
         element: protectedLayout,
+        errorElement: <RouteErrorBoundary />,
         children: [
             { path: "/dashboard", element: <Dashboard /> },
             { path: "/students", element: <StudentList /> },
