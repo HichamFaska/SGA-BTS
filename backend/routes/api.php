@@ -14,23 +14,43 @@ Route::get('me', [AuthController::class, 'me'])->name('auth.me');
 
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::get('teachers', [TeacherController::class, 'index'])->name('teachers.index');
-    Route::post('teachers', [TeacherController::class, 'store'])->name('teachers.store');
-    Route::get('teachers/{teacher}', [TeacherController::class, 'show'])->name('teachers.show');
-    Route::put('teachers/{teacher}', [TeacherController::class, 'update'])->name('teachers.update');
-    Route::delete('teachers/{teacher}', [TeacherController::class, 'destroy'])->name('teachers.destroy');
-    Route::post('teachers/{teacher}/resend-invitation', [TeacherController::class, 'resend'])
-        ->name('teachers.resend-invitation');
+    Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');
+
+    Route::prefix('teachers')
+        ->name('teachers.')
+        ->group(function () {
+
+            Route::middleware('role:teacher,admin')->group(function () {
+                Route::get('/{teacher}', [TeacherController::class, 'show'])->name('show');
+                Route::put('/{teacher}', [TeacherController::class, 'update'])->name('update');
+            });
+
+            Route::middleware('role:admin')->group(function () {
+                Route::get('/', [TeacherController::class, 'index'])->name('index');
+                Route::post('/', [TeacherController::class, 'store'])->name('store');
+                Route::delete('/{teacher}', [TeacherController::class, 'destroy'])->name('destroy');
+                Route::post('/{teacher}/resend-invitation', [TeacherController::class, 'resend'])
+                    ->name('resend-invitation');
+            });
+        });
 
     Route::get('classes', [ClasseController::class, 'index'])->name('classes.index');
 
-    Route::get('students', [StudentController::class, 'index'])->name('students.index');
-    Route::post('students', [StudentController::class, 'store'])->name('students.store');
-    Route::get('students/{student}', [StudentController::class, 'show'])->name('students.show');
-    Route::put('students/{student}', [StudentController::class, 'update'])->name('students.update');
-    Route::delete('students/{student}', [StudentController::class, 'destroy'])->name('students.destroy');
+    Route::prefix('students')
+        ->name('students.')
+        ->group(function () {
 
-    Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');
+            Route::middleware('role:admin,teacher')->group(function () {
+                Route::get('/', [StudentController::class, 'index'])->name('index');
+                Route::get('/{student}', [StudentController::class, 'show'])->name('show');
+            });
+
+            Route::middleware('role:admin')->group(function () {
+                Route::post('/', [StudentController::class, 'store'])->name('store');
+                Route::put('/{student}', [StudentController::class, 'update'])->name('update');
+                Route::delete('/{student}', [StudentController::class, 'destroy'])->name('destroy');
+            });
+        });
 });
 
 Route::get('invitations/{token}', [TeacherController::class, 'showByToken'])->name('invitations.show');
