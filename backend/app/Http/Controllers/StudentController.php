@@ -9,6 +9,7 @@ use App\Models\Student;
 use App\Repositories\StudentRepository;
 use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class StudentController extends Controller {
 
@@ -20,11 +21,14 @@ class StudentController extends Controller {
         $this->studentRepository = $studentRepository;
     }
 
-    public function index(): JsonResponse {
+    public function index(Request $request): JsonResponse {
 
         $this->authorize('viewAny', Student::class);
 
-        $students = $this->studentRepository->all();
+        $students = $this->studentRepository->all(
+            search: $request->input('search'),
+            classId: $request->integer('class_id') ?: null,
+        );
 
         return $this->successResponse([
             'students' => StudentResource::collection($students),

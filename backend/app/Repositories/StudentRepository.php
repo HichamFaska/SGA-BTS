@@ -7,8 +7,12 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class StudentRepository {
 
-    public function all(): LengthAwarePaginator {
-        return Student::with('classe')->latest()->paginate(10);
+    public function all(?string $search = null, ?int $classId = null): LengthAwarePaginator {
+        return Student::with('classe')
+            ->search($search)
+            ->class($classId)
+            ->latest()
+            ->paginate(10);
     }
 
     public function find(int $id): ?Student {

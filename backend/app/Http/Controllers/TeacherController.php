@@ -34,10 +34,13 @@ class TeacherController extends Controller {
         $this->teacherRepository = $teacherRepository;
     }
 
-    public function index(): JsonResponse {
+    public function index(Request $request): JsonResponse {
         $this->authorize('viewAny', Teacher::class);
 
-        $teachers = $this->teacherRepository->all();
+        $teachers = $this->teacherRepository->all(
+            search: $request->input('search'),
+            status: $request->input('status'),
+        );
 
         return $this->successResponse([
             'teachers' => TeacherResource::collection($teachers),
