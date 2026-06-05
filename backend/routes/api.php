@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClasseController;
+use App\Http\Controllers\StudentImportController;
+use App\Http\Controllers\TeacherImportController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
@@ -35,6 +37,18 @@ Route::middleware('auth:sanctum')->group(function () {
         });
 
     Route::get('classes', [ClasseController::class, 'index'])->name('classes.index');
+
+    Route::middleware('role:admin')->group(function () {
+        Route::prefix('import/students')->name('import.students.')->group(function () {
+            Route::post('/preview', [StudentImportController::class, 'preview'])->name('preview');
+            Route::post('/', [StudentImportController::class, 'import'])->name('import');
+        });
+
+        Route::prefix('import/teachers')->name('import.teachers.')->group(function () {
+            Route::post('/preview', [TeacherImportController::class, 'preview'])->name('preview');
+            Route::post('/', [TeacherImportController::class, 'import'])->name('import');
+        });
+    });
 
     Route::prefix('students')
         ->name('students.')
