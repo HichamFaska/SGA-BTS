@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Eye, FileUp, Loader2, Plus, Trash2, UserPen, Users } from "lucide-react"
+import { Eye, FileUp, Loader2, Plus, Search, Trash2, UserPen, Users, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -32,6 +32,7 @@ import classeService from "@/services/classeService"
 import { studentSchema } from "@/schemas/studentSchema"
 import { handleApiErrors } from "@/lib/api-errors"
 import ImportDialog from "@/components/ImportDialog"
+import { useDebounce } from "@/hooks/useDebounce"
 
 const defaultValues = {
     first_name: "",
@@ -54,20 +55,26 @@ export default function StudentList() {
     const [showTarget, setShowTarget] = useState(null)
     const [deleteTarget, setDeleteTarget] = useState(null)
     const [deleting, setDeleting] = useState(false)
+    const [search, setSearch] = useState("")
+    const [classFilter, setClassFilter] = useState("")
     const [importOpen, setImportOpen] = useState(false)
     const [formOpen, setFormOpen] = useState(false)
     const [editTarget, setEditTarget] = useState(null)
     const [loadingForm, setLoadingForm] = useState(false)
+    const debouncedSearch = useDebounce(search)
 
     const form = useForm({
         resolver: zodResolver(studentSchema),
         defaultValues,
     })
 
-    const fetchStudents = async (p = page) => {
+    const fetchStudents = async (p = page, filters = {}) => {
         try {
             setLoading(true)
-            const response = await studentService.list(p)
+            const params = { ...filters }
+            if (params.class_id === "") delete params.class_id
+            if (params.search === "") delete params.search
+            const response = await studentService.list(p, params)
             setStudents(response.data.students)
             setMeta(response.data.meta)
         } catch (err) {
@@ -89,6 +96,11 @@ export default function StudentList() {
     useEffect(() => {
         fetchStudents(page)
     }, [page])
+
+    useEffect(() => {
+        setPage(1)
+        fetchStudents(1, { search: debouncedSearch, class_id: classFilter })
+    }, [debouncedSearch, classFilter])
 
     useEffect(() => {
         fetchClasses()
@@ -185,6 +197,34 @@ export default function StudentList() {
                         Ajouter un étudiant
                     </Button>
                 </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+                <div className="relative flex-1 max-w-sm">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Rechercher par nom, prénom ou matricule..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="pl-9 pr-8"
+                    />
+                    {search && (
+                        <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                            <X className="size-4" />
+                        </button>
+                    )}
+                </div>
+                <Select value={classFilter} onValueChange={(v) => setClassFilter(v === "all" ? "" : v)}>
+                    <SelectTrigger className="w-44">
+                        <SelectValue placeholder="Toutes les classes" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">Toutes les classes</SelectItem>
+                        {classes.map((c) => (
+                            <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
             </div>
 
             <div className="rounded-xl border overflow-auto">

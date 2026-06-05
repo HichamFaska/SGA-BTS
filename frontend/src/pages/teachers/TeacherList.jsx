@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Eye, FileUp, GraduationCap, Loader2, Mail, Plus, Trash2, UserPen } from "lucide-react"
+import { Eye, FileUp, GraduationCap, Loader2, Mail, Plus, Search, Trash2, UserPen, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+    Select, SelectContent, SelectItem,
+    SelectTrigger, SelectValue,
+} from "@/components/ui/select"
 import {
     Table, TableBody, TableCell, TableHead,
     TableHeader, TableRow,
@@ -29,6 +33,7 @@ import teacherService from "@/services/teacherService"
 import ImportDialog from "@/components/ImportDialog"
 import { teacherInvitationSchema } from "@/schemas/teacherInvitationSchema"
 import { handleApiErrors } from "@/lib/api-errors"
+import { useDebounce } from "@/hooks/useDebounce"
 
 const defaultValues = {
     first_name: "",
@@ -50,22 +55,28 @@ export default function TeacherList() {
     const [showTarget, setShowTarget] = useState(null)
     const [deleteTarget, setDeleteTarget] = useState(null)
     const [deleting, setDeleting] = useState(false)
+    const [search, setSearch] = useState("")
+    const [statusFilter, setStatusFilter] = useState("")
     const [resendTarget, setResendTarget] = useState(null)
     const [resending, setResending] = useState(null)
     const [importOpen, setImportOpen] = useState(false)
     const [formOpen, setFormOpen] = useState(false)
     const [editTarget, setEditTarget] = useState(null)
     const [loadingForm, setLoadingForm] = useState(false)
+    const debouncedSearch = useDebounce(search)
 
     const form = useForm({
         resolver: zodResolver(teacherInvitationSchema),
         defaultValues,
     })
 
-    const fetchTeachers = async (p = page) => {
+    const fetchTeachers = async (p = page, filters = {}) => {
         try {
             setLoading(true)
-            const response = await teacherService.list(p)
+            const params = { ...filters }
+            if (params.search === "") delete params.search
+            if (params.status === "") delete params.status
+            const response = await teacherService.list(p, params)
             setTeachers(response.data.teachers)
             setMeta(response.data.meta)
         } catch (err) {
@@ -78,6 +89,11 @@ export default function TeacherList() {
     useEffect(() => {
         fetchTeachers(page)
     }, [page])
+
+    useEffect(() => {
+        setPage(1)
+        fetchTeachers(1, { search: debouncedSearch, status: statusFilter })
+    }, [debouncedSearch, statusFilter])
 
     const openCreate = () => {
         setEditTarget(null)
@@ -184,6 +200,33 @@ export default function TeacherList() {
                         Inviter un professeur
                     </Button>
                 </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+                <div className="relative flex-1 max-w-sm">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Rechercher par nom, prénom ou matricule..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="pl-9 pr-8"
+                    />
+                    {search && (
+                        <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                            <X className="size-4" />
+                        </button>
+                    )}
+                </div>
+                <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v === "all" ? "" : v)}>
+                    <SelectTrigger className="w-44">
+                        <SelectValue placeholder="Tous les statuts" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">Tous les statuts</SelectItem>
+                        <SelectItem value="active">Actif</SelectItem>
+                        <SelectItem value="pending">En attente</SelectItem>
+                    </SelectContent>
+                </Select>
             </div>
 
             <div className="rounded-xl border">
