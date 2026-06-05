@@ -1,8 +1,8 @@
 import api from "@/lib/axios"
 
 export const studentService = {
-    async list(page = 1) {
-        const response = await api.get("/students", { params: { page } })
+    async list(page = 1, params = {}) {
+        const response = await api.get("/students", { params: { page, ...params } })
         return response.data
     },
 
