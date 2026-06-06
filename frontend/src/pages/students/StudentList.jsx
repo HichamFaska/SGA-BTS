@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Eye, FileUp, Loader2, Plus, Search, Trash2, UserPen, Users, X } from "lucide-react"
 
+import Can from "@/components/Can"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -187,16 +188,18 @@ export default function StudentList() {
                         </p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Button variant="outline" onClick={() => setImportOpen(true)}>
-                        <FileUp className="mr-2 size-4" />
-                        Importer
-                    </Button>
-                    <Button onClick={openCreate}>
-                        <Plus className="mr-2 size-4" />
-                        Ajouter un étudiant
-                    </Button>
-                </div>
+                <Can permission="students.create">
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" onClick={() => setImportOpen(true)}>
+                            <FileUp className="mr-2 size-4" />
+                            Importer
+                        </Button>
+                        <Button onClick={openCreate}>
+                            <Plus className="mr-2 size-4" />
+                            Ajouter un étudiant
+                        </Button>
+                    </div>
+                </Can>
             </div>
 
             <div className="flex items-center gap-3">
@@ -268,12 +271,16 @@ export default function StudentList() {
                                             <Button variant="ghost" size="icon" className="size-8" onClick={() => setShowTarget(student)}>
                                                 <Eye className="size-4" />
                                             </Button>
-                                            <Button variant="ghost" size="icon" className="size-8" onClick={() => openEdit(student)}>
-                                                <UserPen className="size-4" />
-                                            </Button>
-                                            <Button variant="ghost" size="icon" className="size-8 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(student)}>
-                                                <Trash2 className="size-4" />
-                                            </Button>
+                                            <Can permission="students.update">
+                                                <Button variant="ghost" size="icon" className="size-8" onClick={() => openEdit(student)}>
+                                                    <UserPen className="size-4" />
+                                                </Button>
+                                            </Can>
+                                            <Can permission="students.delete">
+                                                <Button variant="ghost" size="icon" className="size-8 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(student)}>
+                                                    <Trash2 className="size-4" />
+                                                </Button>
+                                            </Can>
                                         </div>
                                     </TableCell>
                                 </TableRow>

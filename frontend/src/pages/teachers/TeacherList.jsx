@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Eye, FileUp, GraduationCap, Loader2, Mail, Plus, Search, Trash2, UserPen, X } from "lucide-react"
 
+import Can from "@/components/Can"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -190,16 +191,18 @@ export default function TeacherList() {
                         </p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Button variant="outline" onClick={() => setImportOpen(true)}>
-                        <FileUp className="mr-2 size-4" />
-                        Importer
-                    </Button>
-                    <Button onClick={openCreate}>
-                        <Plus className="mr-2 size-4" />
-                        Inviter un professeur
-                    </Button>
-                </div>
+                <Can role="admin">
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" onClick={() => setImportOpen(true)}>
+                            <FileUp className="mr-2 size-4" />
+                            Importer
+                        </Button>
+                        <Button onClick={openCreate}>
+                            <Plus className="mr-2 size-4" />
+                            Inviter un professeur
+                        </Button>
+                    </div>
+                </Can>
             </div>
 
             <div className="flex items-center gap-3">
@@ -279,15 +282,21 @@ export default function TeacherList() {
                                                 <Button variant="ghost" size="icon" className="size-8" onClick={() => setShowTarget(t)}>
                                                     <Eye className="size-4" />
                                                 </Button>
-                                                <Button variant="ghost" size="icon" className="size-8" onClick={() => openEdit(t)}>
-                                                    <UserPen className="size-4" />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="size-8" onClick={() => setResendTarget(t)}>
-                                                    <Mail className="size-4" />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="size-8 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(t)}>
-                                                    <Trash2 className="size-4" />
-                                                </Button>
+                                                <Can permission="teachers.update">
+                                                    <Button variant="ghost" size="icon" className="size-8" onClick={() => openEdit(t)}>
+                                                        <UserPen className="size-4" />
+                                                    </Button>
+                                                </Can>
+                                                <Can permission="teachers.resendInvitation">
+                                                    <Button variant="ghost" size="icon" className="size-8" onClick={() => setResendTarget(t)}>
+                                                        <Mail className="size-4" />
+                                                    </Button>
+                                                </Can>
+                                                <Can permission="teachers.delete">
+                                                    <Button variant="ghost" size="icon" className="size-8 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(t)}>
+                                                        <Trash2 className="size-4" />
+                                                    </Button>
+                                                </Can>
                                             </div>
                                         </TableCell>
                                     </TableRow>
