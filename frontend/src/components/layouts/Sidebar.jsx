@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, GraduationCap, CalendarX, BookOpen, Settings, X } from "lucide-react"
+import { LayoutDashboard, Users, GraduationCap, CalendarX, BookOpen, FolderOpen, Settings, X } from "lucide-react"
 import { NavLink, useLocation } from "react-router-dom"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
@@ -7,12 +7,13 @@ import Can from "@/components/Can"
 const APP_NAME = import.meta.env.VITE_APP_NAME
 
 const navItems = [
-    { label: "Dashboard",   to: "/dashboard", icon: LayoutDashboard, role: null },
-    { label: "Étudiants",   to: "/students",  icon: Users, role: "admin" },
-    { label: "Professeurs", to: "/teachers",  icon: GraduationCap, role: "admin" },
-    { label: "Matières",    to: "/subjects",  icon: BookOpen, role: null },
-    { label: "Absences",    to: "/absences",  icon: CalendarX, role: null },
-    { label: "Paramètres",  to: "/settings",  icon: Settings, role: null },
+    { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard, role: null },
+    { label: "Étudiants", to: "/students", icon: Users, role: "admin" },
+    { label: "Professeurs", to: "/teachers", icon: GraduationCap, role: "admin" },
+    { label: "Matières", to: "/subjects", icon: BookOpen, role: null },
+    { label: "Filières", to: "/filieres", icon: FolderOpen, role: null },
+    { label: "Absences", to: "/absences", icon: CalendarX, role: null },
+    { label: "Paramètres", to: "/settings", icon: Settings, role: null },
 ]
 
 function NavItem({ item, onClose }) {
