@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClasseController;
+use App\Http\Controllers\FiliereController;
 use App\Http\Controllers\StudentImportController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherImportController;
@@ -80,6 +81,22 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::post('/', [SubjectController::class, 'store'])->name('store');
                 Route::put('/{subject}', [SubjectController::class, 'update'])->name('update');
                 Route::delete('/{subject}', [SubjectController::class, 'destroy'])->name('destroy');
+            });
+        });
+
+    Route::prefix('filieres')
+        ->name('filieres.')
+        ->group(function () {
+
+            Route::middleware('role:admin,teacher')->group(function () {
+                Route::get('/', [FiliereController::class, 'index'])->name('index');
+                Route::get('/{filiere}', [FiliereController::class, 'show'])->name('show');
+            });
+
+            Route::middleware('role:admin')->group(function () {
+                Route::post('/', [FiliereController::class, 'store'])->name('store');
+                Route::put('/{filiere}', [FiliereController::class, 'update'])->name('update');
+                Route::delete('/{filiere}', [FiliereController::class, 'destroy'])->name('destroy');
             });
         });
 });
