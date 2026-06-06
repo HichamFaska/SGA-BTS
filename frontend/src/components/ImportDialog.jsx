@@ -34,7 +34,7 @@ export default function ImportDialog({ open, onOpenChange, type, onSuccess }) {
 
     useEffect(() => {
         if (type === "students") {
-            classeService.list()
+            classeService.listAll()
                 .then((res) => setClasses(res.data.classes))
                 .catch(() => {})
         }

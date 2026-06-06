@@ -87,7 +87,7 @@ export default function StudentList() {
 
     const fetchClasses = async () => {
         try {
-            const response = await classeService.list()
+            const response = await classeService.listAll()
             setClasses(response.data.classes ?? [])
         } catch {
             toastError("Impossible de charger les classes.")
