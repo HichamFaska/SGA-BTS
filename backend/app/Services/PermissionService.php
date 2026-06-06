@@ -17,11 +17,11 @@ class PermissionService {
         return [
             'teachers' => [
                 'viewAny' => $user->can('viewAny', Teacher::class),
-                'view' => $teacher ? $user->can('view', $teacher) : false,
+                'view' => $user->isAdmin() || ($teacher ? $user->can('view', $teacher) : false),
                 'create' => $user->can('create', Teacher::class),
-                'update' => $teacher ? $user->can('update', $teacher) : false,
-                'delete' => $teacher ? $user->can('delete', $teacher) : false,
-                'resendInvitation' => $teacher ? $user->can('resendInvitation', $teacher) : false,
+                'update' => $user->isAdmin() || ($teacher ? $user->can('update', $teacher) : false),
+                'delete' => $user->isAdmin(),
+                'resendInvitation' => $user->isAdmin(),
             ],
             'students' => [
                 'viewAny' => $user->can('viewAny', Student::class),
