@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, GraduationCap, CalendarX, BookOpen, FolderOpen, Settings, X } from "lucide-react"
+import { LayoutDashboard, Users, GraduationCap, CalendarX, BookOpen, FolderOpen, School, Settings, X } from "lucide-react"
 import { NavLink, useLocation } from "react-router-dom"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
@@ -12,7 +12,8 @@ const navItems = [
     { label: "Professeurs", to: "/teachers", icon: GraduationCap, role: "admin" },
     { label: "Matières", to: "/subjects", icon: BookOpen, role: null },
     { label: "Filières", to: "/filieres", icon: FolderOpen, role: null },
-    { label: "Absences", to: "/absences", icon: CalendarX, role: null },
+    { label: "Classes",  to: "/classes",  icon: School,     role: null },
+    { label: "Absences", to: "/absences", icon: CalendarX,  role: null },
     { label: "Paramètres", to: "/settings", icon: Settings, role: null },
 ]
 
