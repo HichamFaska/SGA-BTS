@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Filiere;
 use App\Models\Invitation;
 use App\Models\Student;
 use App\Models\Subject;
@@ -38,6 +39,13 @@ class PermissionService {
                 'create' => $user->can('create', Subject::class),
                 'update' => $user->can('update', new Subject()),
                 'delete' => $user->can('delete', new Subject()),
+            ],
+            'filieres' => [
+                'viewAny' => $user->can('viewAny', Filiere::class),
+                'view' => $user->can('view', new Filiere()),
+                'create' => $user->can('create', Filiere::class),
+                'update' => $user->can('update', new Filiere()),
+                'delete' => $user->can('delete', new Filiere()),
             ],
         ];
     }
