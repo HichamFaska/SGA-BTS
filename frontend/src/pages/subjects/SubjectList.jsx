@@ -8,10 +8,6 @@ import Can from "@/components/Can"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
-    Table, TableBody, TableCell, TableHead,
-    TableHeader, TableRow,
-} from "@/components/ui/table"
-import {
     Dialog, DialogContent, DialogDescription,
     DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
@@ -169,65 +165,47 @@ export default function SubjectList() {
                 )}
             </div>
 
-            {/* Table */}
-            <div className="rounded-xl border overflow-auto">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Nom</TableHead>
-                            <TableHead className="w-10" />
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {loading ? (
-                            <TableRow>
-                                <TableCell colSpan={2} className="py-12 text-center">
-                                    <Loader2 className="mx-auto size-6 animate-spin text-muted-foreground" />
-                                </TableCell>
-                            </TableRow>
-                        ) : subjects.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={2} className="py-16 text-center">
-                                    <div className="flex flex-col items-center gap-3">
-                                        <BookOpen className="size-10 text-muted-foreground" />
-                                        <p className="text-sm text-muted-foreground">Aucune matière pour l&apos;instant.</p>
+            {/* Cards */}
+            {loading ? (
+                <div className="flex justify-center py-16">
+                    <Loader2 className="size-6 animate-spin text-muted-foreground" />
+                </div>
+            ) : subjects.length === 0 ? (
+                <div className="flex flex-col items-center gap-3 py-16 text-muted-foreground">
+                    <BookOpen className="size-10" />
+                    <p className="text-sm">Aucune matière pour l&apos;instant.</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {subjects.map((subject) => (
+                        <div
+                            key={subject.id}
+                            className="group flex flex-col gap-3 rounded-xl border bg-card p-4 shadow-sm transition-shadow hover:shadow-md"
+                        >
+                            <div className="flex items-start justify-between gap-2">
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                                        <BookOpen className="size-4 text-primary" />
                                     </div>
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            subjects.map((subject) => (
-                                <TableRow key={subject.id}>
-                                    <TableCell className="font-medium">{subject.name}</TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center gap-1">
-                                        <Can permission="subjects.update">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="size-8"
-                                                onClick={() => openEdit(subject)}
-                                            >
-                                                <Pencil className="size-4" />
-                                            </Button>
-                                        </Can>
-                                        <Can permission="subjects.delete">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="size-8 text-destructive hover:text-destructive"
-                                                onClick={() => setDeleteTarget(subject)}
-                                            >
-                                                <Trash2 className="size-4" />
-                                            </Button>
-                                        </Can>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
+                                    <p className="font-medium text-sm">{subject.name}</p>
+                                </div>
+                                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                                    <Can permission="subjects.update">
+                                        <Button variant="ghost" size="icon" className="size-7" onClick={() => openEdit(subject)}>
+                                            <Pencil className="size-3.5" />
+                                        </Button>
+                                    </Can>
+                                    <Can permission="subjects.delete">
+                                        <Button variant="ghost" size="icon" className="size-7 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(subject)}>
+                                            <Trash2 className="size-3.5" />
+                                        </Button>
+                                    </Can>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
             {/* Pagination */}
             {meta.last_page > 1 && (
