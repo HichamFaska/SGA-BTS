@@ -9,7 +9,7 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('absences', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('session_id')->constrained('sessions')->cascadeOnDelete();
+            $table->foreignId('session_id')->constrained('course_sessions')->cascadeOnDelete();
             $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
             $table->unsignedInteger('duration')->default(0); // en minutes
             $table->foreignId('recorded_by')->constrained('users')->cascadeOnDelete();

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
 
     public function up(): void {
-        Schema::create('sessions', function (Blueprint $table) {
+        Schema::create('course_sessions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('timetable_id')->constrained('timetables')->cascadeOnDelete();
             $table->date('date');
@@ -22,6 +22,6 @@ return new class extends Migration {
     }
 
     public function down(): void {
-        Schema::dropIfExists('sessions');
+        Schema::dropIfExists('course_sessions');
     }
 };

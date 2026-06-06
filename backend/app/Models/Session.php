@@ -13,6 +13,8 @@ class Session extends Model {
     
     use HasFactory;
 
+    protected $table = 'course_sessions';
+
     protected $fillable = [
         'timetable_id',
         'date',
