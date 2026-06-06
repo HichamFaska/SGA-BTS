@@ -248,8 +248,11 @@ export default function StudentList() {
                             </TableRow>
                         ) : students.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="py-12 text-center text-muted-foreground">
-                                    Aucun étudiant pour l&apos;instant.
+                                <TableCell colSpan={6} className="py-16 text-center">
+                                    <div className="flex flex-col items-center gap-3">
+                                        <Users className="size-10 text-muted-foreground" />
+                                        <p className="text-sm text-muted-foreground">Aucun étudiant pour l&apos;instant.</p>
+                                    </div>
                                 </TableCell>
                             </TableRow>
                         ) : (

@@ -250,8 +250,11 @@ export default function TeacherList() {
                             </TableRow>
                         ) : teachers.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="py-12 text-center text-muted-foreground">
-                                    Aucun professeur pour l&apos;instant.
+                                <TableCell colSpan={6} className="py-16 text-center">
+                                    <div className="flex flex-col items-center gap-3">
+                                        <GraduationCap className="size-10 text-muted-foreground" />
+                                        <p className="text-sm text-muted-foreground">Aucun professeur pour l&apos;instant.</p>
+                                    </div>
                                 </TableCell>
                             </TableRow>
                         ) : (
