@@ -7,6 +7,7 @@ import Login from "@/pages/Login"
 import AcceptInvitation from "@/pages/AcceptInvitation"
 import Dashboard from "@/pages/Dashboard"
 import StudentList from "@/pages/students/StudentList"
+import SubjectList from "@/pages/subjects/SubjectList"
 import TeacherList from "@/pages/teachers/TeacherList"
 import Absences from "@/pages/Absences"
 import AppSettings from "@/pages/AppSettings"
@@ -49,6 +50,7 @@ const router = createBrowserRouter([
             { path: "/dashboard", element: <Dashboard /> },
             { path: "/students", element: <StudentList /> },
             { path: "/teachers", element: <TeacherList /> },
+            { path: "/subjects", element: <SubjectList /> },
             { path: "/absences", element: <Absences /> },
             { path: "/settings", element: <AppSettings /> },
         ],
