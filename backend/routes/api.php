@@ -38,7 +38,22 @@ Route::middleware('auth:sanctum')->group(function () {
             });
         });
 
-    Route::get('classes', [ClasseController::class, 'index'])->name('classes.index');
+    Route::prefix('classes')
+        ->name('classes.')
+        ->group(function () {
+
+            Route::middleware('role:admin,teacher')->group(function () {
+                Route::get('/', [ClasseController::class, 'index'])->name('index');
+                Route::get('/list', [ClasseController::class, 'list'])->name('list');
+                Route::get('/{classe}', [ClasseController::class, 'show'])->name('show');
+            });
+
+            Route::middleware('role:admin')->group(function () {
+                Route::post('/', [ClasseController::class, 'store'])->name('store');
+                Route::put('/{classe}', [ClasseController::class, 'update'])->name('update');
+                Route::delete('/{classe}', [ClasseController::class, 'destroy'])->name('destroy');
+            });
+        });
 
     Route::middleware('role:admin')->group(function () {
         Route::prefix('import/students')->name('import.students.')->group(function () {
