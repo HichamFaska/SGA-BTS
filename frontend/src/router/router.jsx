@@ -6,6 +6,7 @@ import { AppLayout } from "@/components/layouts/AppLayout"
 import Login from "@/pages/Login"
 import AcceptInvitation from "@/pages/AcceptInvitation"
 import Dashboard from "@/pages/Dashboard"
+import ClasseList from "@/pages/classes/ClasseList"
 import FiliereList from "@/pages/filieres/FiliereList"
 import StudentList from "@/pages/students/StudentList"
 import SubjectList from "@/pages/subjects/SubjectList"
@@ -53,6 +54,7 @@ const router = createBrowserRouter([
             { path: "/teachers", element: <TeacherList /> },
             { path: "/subjects", element: <SubjectList /> },
             { path: "/filieres", element: <FiliereList /> },
+            { path: "/classes", element: <ClasseList /> },
             { path: "/absences", element: <Absences /> },
             { path: "/settings", element: <AppSettings /> },
         ],
