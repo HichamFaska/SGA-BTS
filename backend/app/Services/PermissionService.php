@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Invitation;
 use App\Models\Student;
+use App\Models\Subject;
 use App\Models\Teacher;
 use App\Models\User;
 
@@ -30,6 +31,13 @@ class PermissionService {
             ],
             'invitations' => [
                 'create' => $user->can('create', Invitation::class),
+            ],
+            'subjects' => [
+                'viewAny' => $user->can('viewAny', Subject::class),
+                'view' => $user->can('view', new Subject()),
+                'create' => $user->can('create', Subject::class),
+                'update' => $user->can('update', new Subject()),
+                'delete' => $user->can('delete', new Subject()),
             ],
         ];
     }
