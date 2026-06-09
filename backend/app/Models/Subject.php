@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Subject extends Model {
@@ -12,11 +12,11 @@ class Subject extends Model {
     use HasFactory;
 
     protected $fillable = [
-        "name"
+        'name',
     ];
 
-    public function timetables(): HasMany {
-        return $this->hasMany(Timetable::class);
+    public function teachers(): HasMany {
+        return $this->hasMany(Teacher::class);
     }
 
     public function scopeSearch(Builder $query, ?string $search): Builder {

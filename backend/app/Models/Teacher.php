@@ -6,20 +6,18 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Teacher extends Model {
 
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
         'matricule',
-        'first_name',
-        'last_name',
-        'phone',
-        'address',
         'birth_date',
-        'avatar',
+        'subject_id',
     ];
 
     protected $casts = [
@@ -30,23 +28,29 @@ class Teacher extends Model {
         return $this->belongsTo(User::class);
     }
 
+    public function subject(): BelongsTo {
+        return $this->belongsTo(Subject::class);
+    }
+
+    public function teacherClasses(): HasMany {
+        return $this->hasMany(TeacherClasse::class);
+    }
+
+    public function courseSessions(): HasMany {
+        return $this->hasMany(CourseSession::class);
+    }
+
     public function scopeSearch(Builder $query, ?string $search): Builder {
         if ($search) {
-            $query->where(function (Builder $q) use ($search) {
+            $query->whereHas('user', function (Builder $q) use ($search) {
                 $q->whereLike('first_name', "%{$search}%")
-                  ->orWhereLike('last_name', "%{$search}%")
-                  ->orWhereLike('matricule', "%{$search}%");
-            });
+                  ->orWhereLike('last_name', "%{$search}%");
+            })->orWhereLike('matricule', "%{$search}%");
         }
         return $query;
     }
 
-    public function scopeStatus(Builder $query, ?string $status): Builder {
-        if ($status === 'active') {
-            $query->whereHas('user', fn (Builder $q) => $q->whereNotNull('email_verified_at'));
-        } elseif ($status === 'pending') {
-            $query->whereHas('user', fn (Builder $q) => $q->whereNull('email_verified_at'));
-        }
-        return $query;
+    public function scopeActive(Builder $query): Builder {
+        return $query->whereHas('user', fn (Builder $q) => $q->where('status', 'active'));
     }
 }

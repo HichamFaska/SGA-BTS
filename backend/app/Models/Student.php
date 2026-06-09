@@ -5,28 +5,33 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Student extends Model {
 
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'matricule',
         'first_name',
         'last_name',
         'birth_date',
+        'email',
         'phone',
         'address',
-        'class_id',
     ];
 
     protected $casts = [
         'birth_date' => 'date',
     ];
 
-    public function classe(): BelongsTo {
-        return $this->belongsTo(Classe::class, 'class_id');
+    public function enrollments(): HasMany {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    public function absences(): HasMany {
+        return $this->hasMany(Absence::class);
     }
 
     public function scopeSearch(Builder $query, ?string $search): Builder {
@@ -36,13 +41,6 @@ class Student extends Model {
                   ->orWhereLike('last_name', "%{$search}%")
                   ->orWhereLike('matricule', "%{$search}%");
             });
-        }
-        return $query;
-    }
-
-    public function scopeClass(Builder $query, ?int $classId): Builder {
-        if ($classId) {
-            $query->where('class_id', $classId);
         }
         return $query;
     }

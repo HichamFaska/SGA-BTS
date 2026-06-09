@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Absence extends Model {
 
     use HasFactory;
-    
+
     protected $fillable = [
         'session_id',
         'student_id',

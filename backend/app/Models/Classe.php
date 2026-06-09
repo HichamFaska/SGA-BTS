@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Classe extends Model {
-    
-    use HasFactory;
+
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -27,8 +28,16 @@ class Classe extends Model {
         return $this->belongsTo(Filiere::class);
     }
 
-    public function students(): HasMany {
-        return $this->hasMany(Student::class);
+    public function enrollments(): HasMany {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    public function teacherClasses(): HasMany {
+        return $this->hasMany(TeacherClasse::class);
+    }
+
+    public function courseSessions(): HasMany {
+        return $this->hasMany(CourseSession::class);
     }
 
     public function scopeSearch(Builder $query, ?string $search): Builder {

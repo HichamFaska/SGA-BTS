@@ -2,49 +2,54 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Carbon;
 
 class Session extends Model {
-    
+
     use HasFactory;
 
     protected $table = 'course_sessions';
 
     protected $fillable = [
-        'timetable_id',
-        'date',
-        'status',
+        'class_id',
+        'teacher_id',
+        'session_date',
         'start_time',
         'end_time',
+        'created_by',
     ];
 
     protected $casts = [
-        'date' => 'date',
+        'session_date' => 'date',
     ];
 
-    public function timetable(): BelongsTo {
-        return $this->belongsTo(Timetable::class);
+    public function classe(): BelongsTo {
+        return $this->belongsTo(Classe::class, 'class_id');
+    }
+
+    public function teacher(): BelongsTo {
+        return $this->belongsTo(Teacher::class);
+    }
+
+    public function createdBy(): BelongsTo {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function absences(): HasMany {
         return $this->hasMany(Absence::class);
     }
 
-    public function scopePlanned(Builder $query): Builder {
-        return $query->where('status', 'prévue');
+    public function scopeForDate(Builder $query, string $date): Builder {
+        return $query->where('session_date', $date);
     }
 
-    public function scopeCompleted(Builder $query): Builder {
-        return $query->where('status', 'réalisée');
-    }
-
-    public function scopeCancelled(Builder $query): Builder {
-        return $query->where('status', 'annulée');
+    public function scopeForTeacher(Builder $query, int $teacherId): Builder {
+        return $query->where('teacher_id', $teacherId);
     }
 
     public function durationInMinutes(): int {
