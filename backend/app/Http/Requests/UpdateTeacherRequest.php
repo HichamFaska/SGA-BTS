@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\UserStatusEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -23,6 +24,7 @@ class UpdateTeacherRequest extends FormRequest {
             'phone' => ['sometimes', 'nullable', 'string', 'max:20'],
             'address' => ['sometimes', 'nullable', 'string'],
             'avatar' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'status' => ['sometimes', Rule::enum(UserStatusEnum::class)],
         ];
     }
 
@@ -43,6 +45,7 @@ class UpdateTeacherRequest extends FormRequest {
             'address.string' => 'L\'adresse doit être une chaîne de caractères.',
             'avatar.string' => 'L\'avatar doit être une chaîne de caractères.',
             'avatar.max' => 'L\'avatar ne doit pas dépasser :max caractères.',
+            'status.Illuminate\Validation\Rules\Enum' => 'Le statut doit être "active" ou "inactive".',
         ];
     }
 }

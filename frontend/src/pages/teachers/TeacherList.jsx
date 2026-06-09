@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Eye, FileUp, GraduationCap, Loader2, Mail, Plus, RefreshCw, Search, Trash2, UserPen, X } from "lucide-react"
+import { Eye, FileUp, GraduationCap, Loader2, Mail, Plus, RefreshCw, Search, Trash2, UserCheck, UserPen, UserX, X } from "lucide-react"
 
 import Can from "@/components/Can"
 import { Button } from "@/components/ui/button"
@@ -60,6 +60,8 @@ export default function TeacherList() {
     const [statusFilter, setStatusFilter] = useState("")
     const [resendTarget, setResendTarget] = useState(null)
     const [resending, setResending] = useState(null)
+    const [statusTarget, setStatusTarget] = useState(null)
+    const [togglingStatus, setTogglingStatus] = useState(false)
     const [importOpen, setImportOpen] = useState(false)
     const [formOpen, setFormOpen] = useState(false)
     const [editTarget, setEditTarget] = useState(null)
@@ -147,6 +149,22 @@ export default function TeacherList() {
             if (!handleApiErrors(err, form.setError)){
                 toastError(err.message)
             }
+        }
+    }
+
+    const handleToggleStatus = async () => {
+        if (!statusTarget) return
+        setTogglingStatus(true)
+        const newStatus = statusTarget.user.status === "active" ? "inactive" : "active"
+        try {
+            const response = await teacherService.update(statusTarget.id, { status: newStatus })
+            toastSuccess(response.message)
+            setStatusTarget(null)
+            fetchTeachers(page)
+        } catch (err) {
+            toastError(err.message)
+        } finally {
+            setTogglingStatus(false)
         }
     }
 
@@ -291,6 +309,17 @@ export default function TeacherList() {
                                                 <Can permission="teachers.update">
                                                     <Button variant="ghost" size="icon" className="size-8" onClick={() => openEdit(teacher)}>
                                                         <UserPen className="size-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className={`size-8 ${teacher.user.status === "active" ? "text-destructive hover:text-destructive" : "text-success hover:text-success"}`}
+                                                        onClick={() => setStatusTarget(teacher)}
+                                                    >
+                                                        {teacher.user.status === "active"
+                                                            ? <UserX className="size-4" />
+                                                            : <UserCheck className="size-4" />
+                                                        }
                                                     </Button>
                                                 </Can>
                                                 <Can permission="teachers.resendInvitation">
@@ -496,6 +525,34 @@ export default function TeacherList() {
                         <Button variant="success" onClick={handleResend} disabled={resending === resendTarget?.id}>
                             {resending === resendTarget?.id && <Loader2 className="mr-2 size-4 animate-spin" />}
                             <Mail className="size-4" /> Envoyer
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Toggle Status */}
+            <Dialog open={!!statusTarget} onOpenChange={(v) => !v && setStatusTarget(null)}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
+                            {statusTarget?.user.status === "active" ? "Désactiver le professeur" : "Réactiver le professeur"}
+                        </DialogTitle>
+                        <DialogDescription>
+                            {statusTarget?.user.status === "active"
+                                ? <>Le compte de <span className="font-medium text-foreground">{statusTarget?.user.first_name} {statusTarget?.user.last_name}</span> sera désactivé. Il ne pourra plus se connecter.</>
+                                : <>Le compte de <span className="font-medium text-foreground">{statusTarget?.user.first_name} {statusTarget?.user.last_name}</span> sera réactivé. Il pourra à nouveau se connecter.</>
+                            }
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setStatusTarget(null)}>Annuler</Button>
+                        <Button
+                            variant={statusTarget?.user.status === "active" ? "destructive" : "success"}
+                            onClick={handleToggleStatus}
+                            disabled={togglingStatus}
+                        >
+                            {togglingStatus && <Loader2 className="mr-2 size-4 animate-spin" />}
+                            {statusTarget?.user.status === "active" ? "Désactiver" : "Réactiver"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
