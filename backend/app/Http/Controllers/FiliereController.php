@@ -36,6 +36,17 @@ class FiliereController extends Controller {
         ], 'Liste des filières récupérée avec succès.');
     }
 
+    public function list(): JsonResponse {
+
+        $this->authorize('viewAny', Filiere::class);
+
+        $filieres = $this->filiereRepository->list();
+
+        return $this->successResponse([
+            'filieres' => FiliereResource::collection($filieres),
+        ], 'Liste des filières récupérée avec succès.');
+    }
+
     public function store(StoreFiliereRequest $request): JsonResponse {
 
         $this->authorize('create', Filiere::class);

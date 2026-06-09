@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\FiliereController;
@@ -99,12 +100,21 @@ Route::middleware('auth:sanctum')->group(function () {
             });
         });
 
+    Route::prefix('academic-years')
+        ->name('academic-years.')
+        ->group(function () {
+            Route::middleware('role:admin,teacher')->group(function () {
+                Route::get('/list', [AcademicYearController::class, 'list'])->name('list');
+            });
+        });
+
     Route::prefix('filieres')
         ->name('filieres.')
         ->group(function () {
 
             Route::middleware('role:admin,teacher')->group(function () {
                 Route::get('/', [FiliereController::class, 'index'])->name('index');
+                Route::get('/list', [FiliereController::class, 'list'])->name('list');
                 Route::get('/{filiere}', [FiliereController::class, 'show'])->name('show');
             });
 

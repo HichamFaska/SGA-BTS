@@ -3,9 +3,14 @@
 namespace App\Repositories;
 
 use App\Models\Filiere;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class FiliereRepository {
+
+    public function list(): Collection {
+        return Filiere::orderBy('name')->get();
+    }
 
     public function all(?string $search = null): LengthAwarePaginator {
         return Filiere::search($search)
