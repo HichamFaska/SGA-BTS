@@ -21,11 +21,12 @@ class TeacherRepository {
 
     public function update(Teacher $teacher, array $data): Teacher {
         $teacher->update($data);
-        return $teacher;
+        $teacher->user->update($data);
+        return $teacher->load('user');
     }
 
     public function delete(Teacher $teacher): bool {
-        $teacher->user()->delete();
+        $teacher->user->delete();
         return $teacher->delete();
     }
 }

@@ -37,7 +37,7 @@ class Teacher extends Model {
     }
 
     public function courseSessions(): HasMany {
-        return $this->hasMany(CourseSession::class);
+        return $this->hasMany(Session::class);
     }
 
     public function scopeSearch(Builder $query, ?string $search): Builder {
@@ -50,7 +50,10 @@ class Teacher extends Model {
         return $query;
     }
 
-    public function scopeActive(Builder $query): Builder {
-        return $query->whereHas('user', fn (Builder $q) => $q->where('status', 'active'));
+    public function scopeStatus(Builder $query, ?string $status): Builder {
+        if ($status) {
+            $query->whereHas('user', fn (Builder $q) => $q->where('status', $status));
+        }
+        return $query;
     }
 }
