@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\UserRoleEnum;
+use App\Enums\UserStatusEnum;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Str;
@@ -19,6 +20,7 @@ class TeacherService {
             'email' => $data['email'],
             'password' => Str::random(32),
             'role' => UserRoleEnum::Teacher->value,
+            'status' => UserStatusEnum::Active->value,
             'phone' => $data['phone'] ?? null,
             'address' => $data['address'] ?? null,
             'avatar' => $data['avatar'] ?? null,
