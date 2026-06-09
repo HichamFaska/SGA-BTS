@@ -390,17 +390,22 @@ export default function TeacherList() {
 
             {/* Show */}
             <Dialog open={!!showTarget} onOpenChange={(v) => !v && setShowTarget(null)}>
-                <DialogContent className="sm:max-w-2xl">
+                <DialogContent className="sm:max-w-lg">
                     {showTarget && (<>
                     <DialogHeader>
-                        <div className="flex items-center gap-4">
-                            <Avatar className="size-16">
+                        <div className="flex items-center gap-3">
+                            <Avatar className="size-12">
                                 <AvatarImage src={showTarget.user.avatar} alt={`${showTarget.user.first_name} ${showTarget.user.last_name}`} />
-                                <AvatarFallback className="text-lg">{showTarget.user.first_name[0]}{showTarget.user.last_name[0]}</AvatarFallback>
+                                <AvatarFallback>{showTarget.user.first_name[0]}{showTarget.user.last_name[0]}</AvatarFallback>
                             </Avatar>
-                            <div>
-                                <DialogTitle className="text-xl">{showTarget.user.first_name} {showTarget.user.last_name}</DialogTitle>
-                                <p className="text-sm text-muted-foreground">{showTarget.matricule}</p>
+                            <div className="min-w-0">
+                                <DialogTitle>{showTarget.user.first_name} {showTarget.user.last_name}</DialogTitle>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                    <p className="text-sm text-muted-foreground">{showTarget.matricule}</p>
+                                    <Badge variant={showTarget.user.email_verified_at ? "success" : "warning"} className="text-xs">
+                                        {showTarget.user.email_verified_at ? "Acceptée" : "En attente"}
+                                    </Badge>
+                                </div>
                             </div>
                         </div>
                     </DialogHeader>
@@ -408,7 +413,7 @@ export default function TeacherList() {
                         {[
                             ["Email", showTarget.user.email],
                             ["Téléphone", showTarget.user.phone],
-                            ["Date de naissance",showTarget.birth_date],
+                            ["Date de naissance", showTarget.birth_date],
                             ["Adresse", showTarget.user.address],
                         ].map(([label, value]) => (
                             <div key={label} className="grid grid-cols-2 gap-2 py-2">
@@ -416,12 +421,6 @@ export default function TeacherList() {
                                 <span className="font-medium">{value || "—"}</span>
                             </div>
                         ))}
-                        <div className="grid grid-cols-2 gap-2 py-2">
-                            <span className="text-muted-foreground">Invitation</span>
-                            <Badge variant={showTarget.user.email_verified_at ? "success" : "warning"} className="w-fit">
-                                {showTarget.user.email_verified_at ? "Acceptée" : "En attente"}
-                            </Badge>
-                        </div>
                     </div>
                     </>)}
                 </DialogContent>
