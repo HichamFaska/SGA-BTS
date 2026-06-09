@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { FileUp, Loader2, Upload, AlertTriangle, CheckCircle2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,11 +13,6 @@ import {
 import { useToast } from "@/components/ui/use-toast"
 import studentImportService from "@/services/studentImportService"
 import teacherImportService from "@/services/teacherImportService"
-import classeService from "@/services/classeService"
-import {
-    Select, SelectContent, SelectItem,
-    SelectTrigger, SelectValue,
-} from "@/components/ui/select"
 
 export default function ImportDialog({ open, onOpenChange, type, onSuccess }) {
     const { success: toastSuccess, error: toastError } = useToast()
@@ -30,25 +25,15 @@ export default function ImportDialog({ open, onOpenChange, type, onSuccess }) {
     const [rows, setRows] = useState([])
     const [skipped, setSkipped] = useState([])
     const [inserted, setInserted] = useState(0)
-    const [classes, setClasses] = useState([])
-
-    useEffect(() => {
-        if (type === "students") {
-            classeService.listAll()
-                .then((res) => setClasses(res.data.classes))
-                .catch(() => {})
-        }
-    }, [type])
 
     const columns = type === "students"
-        ? ["matricule", "first_name", "last_name", "class", "birth_date", "phone", "address"]
+        ? ["matricule", "first_name", "last_name", "email", "birth_date", "phone", "address"]
         : ["matricule", "first_name", "last_name", "email", "birth_date", "phone", "address"]
 
     const colLabels = {
         matricule: "Matricule",
         first_name: "Prénom",
         last_name: "Nom",
-        class: "Classe",
         email: "Email",
         birth_date: "Date de naissance",
         phone: "Téléphone",
@@ -164,35 +149,15 @@ export default function ImportDialog({ open, onOpenChange, type, onSuccess }) {
                                     <TableRow key={i}>
                                         {columns.map((col) => (
                                             <TableCell key={col} className="p-1">
-                                                {col === "class" ? (
-                                                    <Select
-                                                        value={row[col] ?? ""}
-                                                        onValueChange={(val) => {
-                                                            const updated = [...rows]
-                                                            updated[i] = { ...updated[i], [col]: val }
-                                                            setRows(updated)
-                                                        }}
-                                                    >
-                                                        <SelectTrigger className={`h-8 text-sm ${!row[col] ? "border-destructive" : ""}`}>
-                                                            <SelectValue placeholder="Classe..." />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {classes.map((c) => (
-                                                                <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                ) : (
-                                                    <Input
-                                                        value={row[col] ?? ""}
-                                                        onChange={(e) => {
-                                                            const updated = [...rows]
-                                                            updated[i] = { ...updated[i], [col]: e.target.value }
-                                                            setRows(updated)
-                                                        }}
-                                                        className={`h-8 text-sm ${!row[col] ? "border-destructive focus-visible:ring-destructive" : ""}`}
-                                                    />
-                                                )}
+                                                <Input
+                                                    value={row[col] ?? ""}
+                                                    onChange={(e) => {
+                                                        const updated = [...rows]
+                                                        updated[i] = { ...updated[i], [col]: e.target.value }
+                                                        setRows(updated)
+                                                    }}
+                                                    className={`h-8 text-sm ${!row[col] ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                                                />
                                             </TableCell>
                                         ))}
                                         <TableCell className="p-1">

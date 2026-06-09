@@ -15,43 +15,31 @@ class UpdateStudentRequest extends FormRequest {
         $studentId = $this->route('student')?->id;
 
         return [
-            'matricule' => [
-                'sometimes',
-                'string',
-                'max:50',
-                Rule::unique('students', 'matricule')->ignore($studentId),
-            ],
-            'first_name' => ['sometimes', 'string', 'max:255'],
-            'last_name' => ['sometimes', 'string', 'max:255'],
+            'matricule' => ['sometimes', 'string', 'max:50', Rule::unique('students', 'matricule')->ignore($studentId)],
+            'first_name' => ['sometimes', 'string', 'max:50'],
+            'last_name' => ['sometimes', 'string', 'max:50'],
             'birth_date' => ['sometimes', 'nullable', 'date'],
-            'phone' => ['sometimes', 'nullable', 'string', 'max:50'],
-            'address' => ['sometimes', 'nullable', 'string', 'max:255'],
-            'class_id' => ['sometimes', 'integer', 'exists:classes,id'],
+            'email' => ['sometimes', 'nullable', 'email', 'max:100'],
+            'phone' => ['sometimes', 'nullable', 'string', 'max:20'],
+            'address' => ['sometimes', 'nullable', 'string'],
         ];
     }
 
     public function messages(): array {
         return [
             'matricule.string' => 'Le matricule doit être une chaîne de caractères.',
-            'matricule.max' => 'Le matricule ne doit pas dépasser 50 caractères.',
+            'matricule.max' => 'Le matricule ne doit pas dépasser :max caractères.',
             'matricule.unique' => 'Ce matricule est déjà attribué à un étudiant.',
-
             'first_name.string' => 'Le prénom doit être une chaîne de caractères.',
-            'first_name.max' => 'Le prénom ne doit pas dépasser 255 caractères.',
-
+            'first_name.max' => 'Le prénom ne doit pas dépasser :max caractères.',
             'last_name.string' => 'Le nom doit être une chaîne de caractères.',
-            'last_name.max' => 'Le nom ne doit pas dépasser 255 caractères.',
-
+            'last_name.max' => 'Le nom ne doit pas dépasser :max caractères.',
             'birth_date.date' => 'La date de naissance doit être une date valide.',
-
-            'phone.string' => 'Le numéro de téléphone doit être une chaîne de caractères.',
-            'phone.max' => 'Le numéro de téléphone ne doit pas dépasser 50 caractères.',
-
+            'email.email' => 'L\'adresse email doit être valide.',
+            'email.max' => 'L\'adresse email ne doit pas dépasser :max caractères.',
+            'phone.string' => 'Le téléphone doit être une chaîne de caractères.',
+            'phone.max' => 'Le téléphone ne doit pas dépasser :max caractères.',
             'address.string' => 'L\'adresse doit être une chaîne de caractères.',
-            'address.max' => 'L\'adresse ne doit pas dépasser 255 caractères.',
-
-            'class_id.integer' => 'La classe doit être un identifiant valide.',
-            'class_id.exists' => 'La classe sélectionnée n\'existe pas.',
         ];
     }
 }

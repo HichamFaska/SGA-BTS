@@ -40,7 +40,7 @@ class Enrollment extends Model {
     }
 
     public function scopeActive(Builder $query): Builder {
-        return $query->where('status', EnrollmentStatusEnum::Active);
+        return $query->where('status', EnrollmentStatusEnum::Active->value);
     }
 
     public function scopeForYear(Builder $query, int $academicYearId): Builder {
