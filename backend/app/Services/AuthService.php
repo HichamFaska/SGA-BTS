@@ -2,11 +2,9 @@
 
 namespace App\Services;
 
+use App\Enums\UserStatusEnum;
 use App\Models\User;
 use App\Repositories\UserRepository;
-use Illuminate\Auth\Events\Lockout;
-use Illuminate\Cache\RateLimiter;
-use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -19,12 +17,18 @@ class AuthService {
     ) {}
 
     public function login(array $credentials, Request $request): User {
-        
+
         $user = $this->users->findByEmail($credentials['email']);
 
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
             throw ValidationException::withMessages([
                 'email' => 'Ces identifiants sont incorrects.',
+            ]);
+        }
+
+        if ($user->status === UserStatusEnum::Inactive) {
+            throw ValidationException::withMessages([
+                'email' => 'Votre compte a été désactivé.',
             ]);
         }
 
@@ -34,7 +38,7 @@ class AuthService {
         return $user;
     }
 
-    public function logout(Request $request): void{
+    public function logout(Request $request): void {
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
