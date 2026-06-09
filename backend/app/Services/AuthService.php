@@ -27,9 +27,7 @@ class AuthService {
         }
 
         if ($user->status === UserStatusEnum::Inactive) {
-            throw ValidationException::withMessages([
-                'email' => 'Votre compte a été désactivé.',
-            ]);
+            abort(403, 'Votre compte a été désactivé.');
         }
 
         Auth::login($user);

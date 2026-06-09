@@ -27,7 +27,7 @@ export default function Login() {
             navigate("/dashboard", { replace: true })
         } catch (error) {
             if (!handleApiErrors(error, form.setError)) {
-                form.setError("root", { message: error.message ?? "Une erreur est survenue." })
+                toast.error(error.message ?? "Une erreur est survenue.")
             }
         }
     }
@@ -69,10 +69,6 @@ export default function Login() {
                             <FormMessage />
                         </FormItem>
                     )} />
-
-                    {form.formState.errors.root && (
-                        <p className="text-sm text-destructive">{form.formState.errors.root.message}</p>
-                    )}
 
                     <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
                         {form.formState.isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
