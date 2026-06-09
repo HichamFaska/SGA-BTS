@@ -7,16 +7,22 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class StudentRepository {
 
-    public function all(?string $search = null, ?int $classId = null): LengthAwarePaginator {
-        return Student::with('classe')
-            ->search($search)
-            ->class($classId)
+    public function all(
+        ?string $search = null,
+        ?int $classeId = null,
+        ?int $filiereId = null,
+        ?int $academicYearId = null,
+    ): LengthAwarePaginator {
+        return Student::search($search)
+            ->inClasse($classeId)
+            ->inFiliere($filiereId)
+            ->inAcademicYear($academicYearId)
             ->latest()
             ->paginate(10);
     }
 
     public function find(int $id): ?Student {
-        return Student::with('classe')->find($id);
+        return Student::find($id);
     }
 
     public function create(array $data): Student {

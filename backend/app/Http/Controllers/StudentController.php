@@ -15,11 +15,7 @@ class StudentController extends Controller {
 
     use ApiResponse;
 
-    private StudentRepository $studentRepository;
-
-    public function __construct(StudentRepository $studentRepository) {
-        $this->studentRepository = $studentRepository;
-    }
+    public function __construct(private StudentRepository $studentRepository) {}
 
     public function index(Request $request): JsonResponse {
 
@@ -27,7 +23,9 @@ class StudentController extends Controller {
 
         $students = $this->studentRepository->all(
             search: $request->input('search'),
-            classId: $request->integer('class_id') ?: null,
+            classeId: $request->integer('classe_id'),
+            filiereId: $request->integer('filiere_id'),
+            academicYearId: $request->integer('academic_year_id'),
         );
 
         return $this->successResponse([
@@ -45,9 +43,7 @@ class StudentController extends Controller {
 
         $this->authorize('create', Student::class);
 
-        $credentials = $request->validated();
-
-        $student = $this->studentRepository->create($credentials);
+        $student = $this->studentRepository->create($request->validated());
 
         return $this->successResponse([
             'student' => new StudentResource($student),
@@ -58,8 +54,6 @@ class StudentController extends Controller {
 
         $this->authorize('view', $student);
 
-        $student->load('classe');
-
         return $this->successResponse([
             'student' => new StudentResource($student),
         ], 'Étudiant récupéré avec succès.', 200);
@@ -69,9 +63,7 @@ class StudentController extends Controller {
 
         $this->authorize('update', $student);
 
-        $credentials = $request->validated();
-
-        $student = $this->studentRepository->update($student, $credentials);
+        $student = $this->studentRepository->update($student, $request->validated());
 
         return $this->successResponse([
             'student' => new StudentResource($student),

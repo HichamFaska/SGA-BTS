@@ -1,35 +1,42 @@
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Eye, FileUp, Loader2, Plus, Search, Trash2, UserPen, Users, X } from "lucide-react"
+import { Eye, FileUp, Loader2, Plus, RefreshCw, Search, Trash2, UserPen, Users, X } from "lucide-react"
 
 import Can from "@/components/Can"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+
 import {
-    Select, SelectContent, SelectItem,
-    SelectTrigger, SelectValue,
+    Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select"
+
 import {
     Table, TableBody, TableCell, TableHead,
     TableHeader, TableRow,
 } from "@/components/ui/table"
+
 import {
     Dialog, DialogContent, DialogDescription,
     DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
+
 import {
     FormProvider, FormField, FormItem,
     FormLabel, FormControl, FormMessage,
 } from "@/components/ui/form"
 
 import { useToast } from "@/components/ui/use-toast"
+
 import {
     Pagination, PaginationContent, PaginationEllipsis,
     PaginationItem, PaginationLink, PaginationNext, PaginationPrevious,
 } from "@/components/ui/pagination"
+
 import studentService from "@/services/studentService"
 import classeService from "@/services/classeService"
+import filiereService from "@/services/filiereService"
+import academicYearService from "@/services/academicYearService"
 import { studentSchema } from "@/schemas/studentSchema"
 import { handleApiErrors } from "@/lib/api-errors"
 import ImportDialog from "@/components/ImportDialog"
@@ -39,7 +46,7 @@ const defaultValues = {
     first_name: "",
     last_name: "",
     matricule: "",
-    class_id: "",
+    email: "",
     birth_date: "",
     phone: "",
     address: "",
@@ -51,13 +58,17 @@ export default function StudentList() {
     const [students, setStudents] = useState([])
     const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0 })
     const [page, setPage] = useState(1)
-    const [classes, setClasses] = useState([])
     const [loading, setLoading] = useState(true)
     const [showTarget, setShowTarget] = useState(null)
     const [deleteTarget, setDeleteTarget] = useState(null)
     const [deleting, setDeleting] = useState(false)
     const [search, setSearch] = useState("")
-    const [classFilter, setClassFilter] = useState("")
+    const [classeId, setClasseId] = useState("")
+    const [filiereId, setFiliereId] = useState("")
+    const [academicYearId, setAcademicYearId] = useState("")
+    const [classes, setClasses] = useState([])
+    const [filieres, setFilieres] = useState([])
+    const [academicYears, setAcademicYears] = useState([])
     const [importOpen, setImportOpen] = useState(false)
     const [formOpen, setFormOpen] = useState(false)
     const [editTarget, setEditTarget] = useState(null)
@@ -69,12 +80,15 @@ export default function StudentList() {
         defaultValues,
     })
 
-    const fetchStudents = async (p = page, filters = {}) => {
+    const fetchStudents = async (p = page) => {
         try {
             setLoading(true)
-            const params = { ...filters }
-            if (params.class_id === "") delete params.class_id
-            if (params.search === "") delete params.search
+            const params = {
+                search: debouncedSearch,
+                classe_id: classeId,
+                filiere_id: filiereId,
+                academic_year_id: academicYearId,
+            }
             const response = await studentService.list(p, params)
             setStudents(response.data.students)
             setMeta(response.data.meta)
@@ -85,27 +99,26 @@ export default function StudentList() {
         }
     }
 
-    const fetchClasses = async () => {
-        try {
-            const response = await classeService.listAll()
-            setClasses(response.data.classes ?? [])
-        } catch {
-            toastError("Impossible de charger les classes.")
-        }
-    }
+    useEffect(() => {
+        Promise.all([
+            classeService.listAll(),
+            filiereService.listAll(),
+            academicYearService.listAll(),
+        ]).then(([classe, filiere, academicYear]) => {
+            setClasses(classe.data.classes ?? [])
+            setFilieres(filiere.data.filieres ?? [])
+            setAcademicYears(academicYear.data.academic_years ?? [])
+        }).catch(() => {})
+    }, [])
+
+    useEffect(() => {
+        setPage(1)
+        fetchStudents(1)
+    }, [debouncedSearch, classeId, filiereId, academicYearId])
 
     useEffect(() => {
         fetchStudents(page)
     }, [page])
-
-    useEffect(() => {
-        setPage(1)
-        fetchStudents(1, { search: debouncedSearch, class_id: classFilter })
-    }, [debouncedSearch, classFilter])
-
-    useEffect(() => {
-        fetchClasses()
-    }, [])
 
     const openCreate = () => {
         setEditTarget(null)
@@ -124,7 +137,7 @@ export default function StudentList() {
                 first_name: std.first_name,
                 last_name: std.last_name,
                 matricule: std.matricule,
-                class_id: std.class_id,
+                email: std.email,
                 birth_date: std.birth_date,
                 phone: std.phone,
                 address: std.address,
@@ -202,8 +215,8 @@ export default function StudentList() {
                 </Can>
             </div>
 
-            <div className="flex items-center gap-3">
-                <div className="relative flex-1 max-w-sm">
+            <div className="flex flex-wrap items-center gap-3">
+                <div className="relative flex-1 min-w-56 max-w-sm">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                     <Input
                         placeholder="Rechercher par nom, prénom ou matricule..."
@@ -217,9 +230,22 @@ export default function StudentList() {
                         </button>
                     )}
                 </div>
-                <Select value={classFilter} onValueChange={(v) => setClassFilter(v === "all" ? "" : v)}>
+
+                <Select value={filiereId || "all"} onValueChange={(v) => setFiliereId(v === "all" ? "" : v)}>
                     <SelectTrigger className="w-44">
-                        <SelectValue placeholder="Toutes les classes" />
+                        <SelectValue placeholder="Filière" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">Toutes les filières</SelectItem>
+                        {filieres.map((f) => (
+                            <SelectItem key={f.id} value={String(f.id)}>{f.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+
+                <Select value={classeId || "all"} onValueChange={(v) => setClasseId(v === "all" ? "" : v)}>
+                    <SelectTrigger className="w-44">
+                        <SelectValue placeholder="Classe" />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">Toutes les classes</SelectItem>
@@ -228,6 +254,23 @@ export default function StudentList() {
                         ))}
                     </SelectContent>
                 </Select>
+
+                <Select value={academicYearId || "all"} onValueChange={(v) => setAcademicYearId(v === "all" ? "" : v)}>
+                    <SelectTrigger className="w-44">
+                        <SelectValue placeholder="Année académique" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">Toutes les années</SelectItem>
+                        {academicYears.map((year) => (
+                            <SelectItem key={year.id} value={String(year.id)}>{year.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+
+                <Button variant="outline" onClick={() => fetchStudents(page)}>
+                    <RefreshCw className="mr-2 size-4" />
+                    Actualiser
+                </Button>
             </div>
 
             <div className="rounded-xl border overflow-auto">
@@ -236,7 +279,7 @@ export default function StudentList() {
                         <TableRow>
                             <TableHead>Nom</TableHead>
                             <TableHead>Matricule</TableHead>
-                            <TableHead>Classe</TableHead>
+                            <TableHead>Email</TableHead>
                             <TableHead>Téléphone</TableHead>
                             <TableHead>Date de naissance</TableHead>
                             <TableHead className="w-10" />
@@ -263,7 +306,7 @@ export default function StudentList() {
                                 <TableRow key={student.id}>
                                     <TableCell className="font-medium">{student.first_name} {student.last_name}</TableCell>
                                     <TableCell className="text-muted-foreground">{student.matricule}</TableCell>
-                                    <TableCell className="text-muted-foreground">{student.classe?.name || "—"}</TableCell>
+                                    <TableCell className="text-muted-foreground">{student.email || "—"}</TableCell>
                                     <TableCell className="text-muted-foreground">{student.phone || "—"}</TableCell>
                                     <TableCell className="text-muted-foreground">{student.birth_date || "—"}</TableCell>
                                     <TableCell>
@@ -339,16 +382,17 @@ export default function StudentList() {
             {/* Show */}
             <Dialog open={!!showTarget} onOpenChange={(v) => !v && setShowTarget(null)}>
                 <DialogContent className="sm:max-w-lg">
+                    {showTarget && (<>
                     <DialogHeader>
-                        <DialogTitle>{showTarget?.first_name} {showTarget?.last_name}</DialogTitle>
+                        <DialogTitle>{showTarget.first_name} {showTarget.last_name}</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-3 py-2">
                         {[
-                            ["Matricule", showTarget?.matricule],
-                            ["Classe", showTarget?.classe?.name],
-                            ["Téléphone", showTarget?.phone],
-                            ["Date de naissance",showTarget?.birth_date],
-                            ["Adresse", showTarget?.address],
+                            ["Matricule", showTarget.matricule],
+                            ["Email", showTarget.email],
+                            ["Téléphone", showTarget.phone],
+                            ["Date de naissance", showTarget.birth_date],
+                            ["Adresse", showTarget.address],
                         ].map(([label, value]) => (
                             <div key={label} className="grid grid-cols-2 gap-2 text-sm">
                                 <span className="text-muted-foreground">{label}</span>
@@ -356,6 +400,7 @@ export default function StudentList() {
                             </div>
                         ))}
                     </div>
+                    </>)}
                 </DialogContent>
             </Dialog>
 
@@ -398,21 +443,10 @@ export default function StudentList() {
                                             <FormMessage />
                                         </FormItem>
                                     )} />
-                                    <FormField control={form.control} name="class_id" render={({ field }) => (
+                                    <FormField control={form.control} name="email" render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Classe</FormLabel>
-                                            <Select onValueChange={field.onChange} value={field.value ? String(field.value) : ""}>
-                                                <FormControl>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Sélectionner une classe" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    {classes.map((c) => (
-                                                        <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
+                                            <FormLabel>Email</FormLabel>
+                                            <FormControl><Input type="email" placeholder="etudiant@email.com" {...field} /></FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )} />
@@ -458,7 +492,7 @@ export default function StudentList() {
                         <DialogTitle>Supprimer l&apos;étudiant</DialogTitle>
                         <DialogDescription>
                             Êtes-vous sûr de vouloir supprimer{" "}
-                            <span className="font-medium text-foreground">{deleteTarget?.first_name} {deleteTarget?.last_name}</span>{" "}
+                            {deleteTarget && <span className="font-medium text-foreground">{deleteTarget.first_name} {deleteTarget.last_name}</span>}{" "}
                             ? Cette action est irréversible.
                         </DialogDescription>
                     </DialogHeader>

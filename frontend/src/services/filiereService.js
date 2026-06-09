@@ -6,6 +6,11 @@ export const filiereService = {
         return response.data
     },
 
+    async listAll() {
+        const response = await api.get("/filieres/list")
+        return response.data
+    },
+
     async show(id) {
         const response = await api.get(`/filieres/${id}`)
         return response.data

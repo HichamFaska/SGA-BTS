@@ -44,4 +44,25 @@ class Student extends Model {
         }
         return $query;
     }
+
+    public function scopeInClasse(Builder $query, ?int $classeId): Builder {
+        if ($classeId) {
+            $query->whereHas('enrollments', fn (Builder $q) => $q->where('class_id', $classeId));
+        }
+        return $query;
+    }
+
+    public function scopeInFiliere(Builder $query, ?int $filiereId): Builder {
+        if ($filiereId) {
+            $query->whereHas('enrollments.classe', fn (Builder $q) => $q->where('filiere_id', $filiereId));
+        }
+        return $query;
+    }
+
+    public function scopeInAcademicYear(Builder $query, ?int $academicYearId): Builder {
+        if ($academicYearId) {
+            $query->whereHas('enrollments', fn (Builder $q) => $q->where('academic_year_id', $academicYearId));
+        }
+        return $query;
+    }
 }
