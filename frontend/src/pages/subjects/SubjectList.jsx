@@ -125,6 +125,12 @@ export default function SubjectList() {
     }
 
     return (
+        <Can permission="subjects.viewAny" fallback={
+            <div className="flex flex-col items-center gap-3 py-32 text-muted-foreground">
+                <BookOpen className="size-10" />
+                <p className="text-sm">Vous n&apos;avez pas accès à cette page.</p>
+            </div>
+        }>
         <div className="space-y-6">
 
             {/* Header */}
@@ -319,5 +325,6 @@ export default function SubjectList() {
                 </DialogContent>
             </Dialog>
         </div>
+        </Can>
     )
 }

@@ -9,22 +9,22 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 const APP_NAME = import.meta.env.VITE_APP_NAME
 
 const navItems = [
-    { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard, role: null },
-    { label: "Étudiants", to: "/students", icon: Users, role: "admin" },
-    { label: "Professeurs", to: "/teachers", icon: GraduationCap, role: "admin" },
-    { label: "Matières", to: "/subjects", icon: BookOpen, role: null },
-    { label: "Filières", to: "/filieres", icon: FolderOpen, role: null },
-    { label: "Classes",  to: "/classes",  icon: School, role: null },
-    { label: "Absences", to: "/absences", icon: CalendarX, role: null },
-    { label: "Paramètres", to: "/settings", icon: Settings, role: null },
+    { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
+    { label: "Étudiants", to: "/students",  icon: Users, permission: "students.viewAny" },
+    { label: "Professeurs", to: "/teachers",  icon: GraduationCap, permission: "teachers.viewAny" },
+    { label: "Matières", to: "/subjects",  icon: BookOpen, permission: "subjects.viewAny" },
+    { label: "Filières", to: "/filieres",  icon: FolderOpen, permission: "filieres.viewAny" },
+    { label: "Classes", to: "/classes",   icon: School, permission: "classes.viewAny" },
+    { label: "Absences", to: "/absences",  icon: CalendarX },
+    { label: "Paramètres", to: "/settings",  icon: Settings },
 ]
 
 function NavItem({ item, onClose }) {
     const location = useLocation()
+    const isGroupActive = item.children?.some((c) => location.pathname.startsWith(c.to)) ?? false
+    const [open, setOpen] = useState(isGroupActive)
 
     if (item.children) {
-        const isGroupActive = item.children.some((c) => location.pathname.startsWith(c.to))
-        const [open, setOpen] = useState(isGroupActive)
         const Icon = item.icon
 
         return (
@@ -119,8 +119,8 @@ export function Sidebar({ open, onClose }) {
                 </div>
 
                 <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-                    {navItems.map((item, i) => (
-                        <Can key={item.to ?? i} role={item.role ?? undefined}>
+                    {navItems.map((item) => (
+                        <Can key={item.to} permission={item.permission}>
                             <NavItem item={item} onClose={onClose} />
                         </Can>
                     ))}
