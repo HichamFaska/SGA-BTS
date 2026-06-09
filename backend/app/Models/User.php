@@ -56,11 +56,11 @@ class User extends Authenticatable {
     }
 
     public function isAdmin(): bool {
-        return $this->role === UserRoleEnum::ADMIN;
+        return $this->role === UserRoleEnum::Admin;
     }
 
     public function isTeacher(): bool {
-        return $this->role === UserRoleEnum::TEACHER;
+        return $this->role === UserRoleEnum::Teacher;
     }
 
     public function isActive(): bool {

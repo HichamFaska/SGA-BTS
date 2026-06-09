@@ -3,6 +3,6 @@
 namespace App\Enums;
 
 enum UserRoleEnum: string {
-    case ADMIN = 'admin';
-    case TEACHER = 'teacher';
+    case Admin = 'admin';
+    case Teacher = 'teacher';
 }
