@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->string('name'); // ex: "2024-2025"
             $table->date('start_date');
             $table->date('end_date');
-            $table->boolean('is_active')->default(false);
+            $table->boolean('is_current')->default(false);
             $table->timestamps();
         });
     }

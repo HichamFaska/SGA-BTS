@@ -11,12 +11,9 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->unique()->constrained('users')->cascadeOnDelete();
             $table->string('matricule')->unique();
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->string('phone')->nullable();
-            $table->string('address')->nullable();
             $table->date('birth_date')->nullable();
-            $table->string('avatar')->nullable();
+            $table->foreignId('subject_id')->nullable()->constrained('subjects')->nullOnDelete();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

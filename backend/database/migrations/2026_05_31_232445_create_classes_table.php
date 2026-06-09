@@ -13,17 +13,14 @@ return new class extends Migration {
             $table->string('name');
             $table->enum('level', array_column(ClassLevelEnum::cases(), 'value'));
 
-            $table->foreignId('academic_year_id')
-                ->constrained('academic_years')
-                ->cascadeOnDelete();
-
             $table->foreignId('filiere_id')
                 ->constrained('filieres')
                 ->cascadeOnDelete();
-                
+
+            $table->softDeletes();
             $table->timestamps();
 
-            $table->index(['academic_year_id', 'filiere_id']);
+            $table->index('filiere_id');
         });
     }
 

@@ -13,12 +13,11 @@ return new class extends Migration {
             $table->string('first_name');
             $table->string('last_name');
             $table->date('birth_date')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('address')->nullable();
-            $table->foreignId('class_id')->constrained('classes')->cascadeOnDelete();
+            $table->string('email', 100)->nullable();
+            $table->string('phone', 20)->nullable();
+            $table->text('address')->nullable();
+            $table->softDeletes();
             $table->timestamps();
-
-            $table->index('class_id');
         });
     }
 
