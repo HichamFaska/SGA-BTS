@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Enums\UserStatusEnum;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class EnsureUserIsActive {
@@ -13,6 +14,10 @@ class EnsureUserIsActive {
         $user = $request->user();
 
         if ($user && $user->status === UserStatusEnum::Inactive) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
             return response()->json([
                 'message' => 'Votre compte a été désactivé.',
             ], 403);
