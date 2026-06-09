@@ -1,4 +1,4 @@
-import { LogOut, Loader2, Menu } from "lucide-react"
+import { LogOut, Loader2, Menu, Mail, Phone } from "lucide-react"
 import { useState } from "react"
 import { Outlet, useNavigate } from "react-router-dom"
 import { Button } from "../ui/button"
@@ -10,15 +10,23 @@ import {
     DialogHeader,
     DialogTitle,
 } from "../ui/dialog"
+
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/hooks/useAuth"
 import { useToast } from "@/components/ui/use-toast"
 import { Sidebar } from "./Sidebar"
 
 export function AppLayout() {
-    const { logout } = useAuth()
+    const { logout, user } = useAuth()
     const navigate = useNavigate()
     const { success: toastSuccess, error: toastError } = useToast()
-    const [dialogOpen, setDialogOpen] = useState(false)
+    const [logoutOpen, setLogoutOpen] = useState(false)
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const [loggingOut, setLoggingOut] = useState(false)
 
@@ -32,9 +40,11 @@ export function AppLayout() {
             toastError("Une erreur est survenue lors de la déconnexion.")
         } finally {
             setLoggingOut(false)
-            setDialogOpen(false)
+            setLogoutOpen(false)
         }
     }
+
+    const roleLabel = user && user.role === "admin" ? "Administrateur" : "Professeur"
 
     return (
         <div className="flex h-screen overflow-hidden bg-background">
@@ -51,10 +61,55 @@ export function AppLayout() {
 
                     <div className="flex-1" />
 
-                    <Button type="button" variant="outline" size="sm" onClick={() => setDialogOpen(true)}>
-                        <LogOut className="mr-2 size-4" />
-                        Déconnexion
-                    </Button>
+                    {user && (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <button className="flex items-center gap-2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                                    <Avatar className="size-9 cursor-pointer ring-2 ring-border hover:ring-primary transition-all">
+                                        <AvatarImage src={user.avatar} alt={`${user.first_name} ${user.last_name}`} />
+                                        <AvatarFallback className="text-xs">{user.first_name[0]}{user.last_name[0]}</AvatarFallback>
+                                    </Avatar>
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-64 p-0">
+                                <div className="flex items-center gap-3 p-4">
+                                    <Avatar className="size-12 shrink-0">
+                                        <AvatarImage src={user.avatar} alt={`${user.first_name} ${user.last_name}`} />
+                                        <AvatarFallback>{user.first_name[0]}{user.last_name[0]}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="min-w-0">
+                                        <p className="font-semibold truncate">{user.first_name} {user.last_name}</p>
+                                        <p className="text-xs text-muted-foreground">{roleLabel}</p>
+                                    </div>
+                                </div>
+                                <DropdownMenuSeparator />
+                                <div className="space-y-1 px-3 py-2 text-sm text-muted-foreground">
+                                    {user.email && (
+                                        <div className="flex items-center gap-2">
+                                            <Mail className="size-3.5 shrink-0" />
+                                            <span className="truncate">{user.email}</span>
+                                        </div>
+                                    )}
+                                    {user.phone && (
+                                        <div className="flex items-center gap-2">
+                                            <Phone className="size-3.5 shrink-0" />
+                                            <span>{user.phone}</span>
+                                        </div>
+                                    )}
+                                </div>
+                                <DropdownMenuSeparator />
+                                <div className="p-2">
+                                    <button
+                                        onClick={() => setLogoutOpen(true)}
+                                        className="w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                                    >
+                                        <LogOut className="size-4" />
+                                        Déconnexion
+                                    </button>
+                                </div>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
                 </header>
 
                 <main className="flex-1 overflow-y-auto px-6 py-8">
@@ -62,7 +117,7 @@ export function AppLayout() {
                 </main>
             </div>
 
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <Dialog open={logoutOpen} onOpenChange={setLogoutOpen}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Confirmer la déconnexion</DialogTitle>
@@ -71,7 +126,7 @@ export function AppLayout() {
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                        <Button variant="outline" onClick={() => setLogoutOpen(false)}>
                             Annuler
                         </Button>
                         <Button variant="destructive" onClick={handleLogout} disabled={loggingOut}>

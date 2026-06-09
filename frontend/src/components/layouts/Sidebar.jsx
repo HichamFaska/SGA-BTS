@@ -3,6 +3,8 @@ import { NavLink, useLocation } from "react-router-dom"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import Can from "@/components/Can"
+import { useAuth } from "@/hooks/useAuth"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 const APP_NAME = import.meta.env.VITE_APP_NAME
 
@@ -12,8 +14,8 @@ const navItems = [
     { label: "Professeurs", to: "/teachers", icon: GraduationCap, role: "admin" },
     { label: "Matières", to: "/subjects", icon: BookOpen, role: null },
     { label: "Filières", to: "/filieres", icon: FolderOpen, role: null },
-    { label: "Classes",  to: "/classes",  icon: School,     role: null },
-    { label: "Absences", to: "/absences", icon: CalendarX,  role: null },
+    { label: "Classes",  to: "/classes",  icon: School, role: null },
+    { label: "Absences", to: "/absences", icon: CalendarX, role: null },
     { label: "Paramètres", to: "/settings", icon: Settings, role: null },
 ]
 
@@ -87,6 +89,9 @@ function NavItem({ item, onClose }) {
 }
 
 export function Sidebar({ open, onClose }) {
+    const { user } = useAuth()
+    const roleLabel = user && user.role === "admin" ? "Administrateur" : "Professeur"
+
     return (
         <>
             {open && (
@@ -120,6 +125,23 @@ export function Sidebar({ open, onClose }) {
                         </Can>
                     ))}
                 </nav>
+
+                {user && (
+                    <div className="border-t px-4 py-3 shrink-0">
+                        <div className="flex items-center gap-3">
+                            <Avatar className="size-8 shrink-0">
+                                <AvatarImage src={user.avatar} alt={`${user.first_name} ${user.last_name}`} />
+                                <AvatarFallback className="text-xs">
+                                    {user.first_name[0]}{user.last_name[0]}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0">
+                                <p className="text-sm font-medium truncate">{user.first_name} {user.last_name}</p>
+                                <p className="text-xs text-muted-foreground truncate">{roleLabel}</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </aside>
         </>
     )
