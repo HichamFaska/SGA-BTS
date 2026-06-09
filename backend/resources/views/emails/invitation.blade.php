@@ -1,6 +1,6 @@
 @component('mail::message')
 
-# Bonjour {{ optional($user->teacher)->first_name ? optional($user->teacher)->first_name.' '.optional($user->teacher)->last_name : $user->email }}
+# Bonjour {{ $user->first_name }} {{ $user->last_name }}
 
 Un compte a été créé pour vous sur la plateforme. Cliquez sur le bouton ci-dessous pour définir votre mot de passe et accéder à votre espace.
 

@@ -2,47 +2,52 @@
 
 namespace Database\Factories;
 
+use App\Enums\UserRoleEnum;
+use App\Enums\UserStatusEnum;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
-/**
- * @extends Factory<User>
- */
-class UserFactory extends Factory
-{
-    /**
-     * The current password being used by the factory.
-     */
+class UserFactory extends Factory {
+
     protected static ?string $password;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition(): array
-    {
+    public function definition(): array {
         return [
+            'first_name' => fake()->firstName(),
+            'last_name' => fake()->lastName(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => Hash::make('bts@2026'),
-            'role' => fake()->randomElement(['teacher', 'admin']),
+            'role' => UserRoleEnum::Teacher,
+            'status' => UserStatusEnum::Active,
+            'phone' => fake()->phoneNumber(),
+            'address' => fake()->address(),
+            'avatar' => null,
         ];
     }
 
-    public function unverified(): static
-    {
+    public function unverified(): static {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
     }
 
-    public function teacher(): static
-    {
+    public function teacher(): static {
         return $this->state(fn (array $attributes) => [
-            'role' => 'teacher',
+            'role' => UserRoleEnum::Teacher,
+        ]);
+    }
+
+    public function admin(): static {
+        return $this->state(fn (array $attributes) => [
+            'role' => UserRoleEnum::Admin,
+        ]);
+    }
+
+    public function inactive(): static {
+        return $this->state(fn (array $attributes) => [
+            'status' => UserStatusEnum::Inactive,
         ]);
     }
 }

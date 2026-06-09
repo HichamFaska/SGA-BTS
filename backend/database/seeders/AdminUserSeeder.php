@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\UserRoleEnum;
+use App\Enums\UserStatusEnum;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -15,8 +16,11 @@ class AdminUserSeeder extends Seeder {
         User::updateOrCreate(
             ['email' => $email],
             [
+                'first_name' => 'Admin',
+                'last_name' => 'Admin',
                 'password' => Hash::make($password),
-                'role' => UserRoleEnum::ADMIN,
+                'role' => UserRoleEnum::Admin,
+                'status' => UserStatusEnum::Active,
                 'email_verified_at' => now(),
             ]
         );
