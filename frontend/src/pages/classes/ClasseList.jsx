@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { GraduationCap, Loader2, Pencil, Plus, Search, Trash2, X } from "lucide-react"
+import { GraduationCap, Loader2, Pencil, Plus, RefreshCw, Search, Trash2, X } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
 import Can from "@/components/Can"
@@ -211,11 +211,15 @@ export default function ClasseList() {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">Toutes les filières</SelectItem>
-                        {filieres.map((f) => (
-                            <SelectItem key={f.id} value={String(f.id)}>{f.name}</SelectItem>
+                        {filieres.map((filiere) => (
+                            <SelectItem key={filiere.id} value={String(filiere.id)}>{filiere.name}</SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
+                <Button variant="outline" onClick={() => fetchClasses(page)}>
+                    <RefreshCw className="mr-2 size-4" />
+                    Actualiser
+                </Button>
             </div>
 
             {/* Table */}

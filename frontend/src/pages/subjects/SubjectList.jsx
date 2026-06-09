@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { BookOpen, Loader2, Plus, Search, Trash2, Pencil, X } from "lucide-react"
+import { BookOpen, Loader2, Pencil, Plus, RefreshCw, Search, Trash2, X } from "lucide-react"
 
 import Can from "@/components/Can"
 
@@ -147,22 +147,28 @@ export default function SubjectList() {
             </div>
 
             {/* Search */}
-            <div className="relative max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                <Input
-                    placeholder="Rechercher une matière..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="pl-9 pr-8"
-                />
-                {search && (
-                    <button
-                        onClick={() => setSearch("")}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
-                        <X className="size-4" />
-                    </button>
-                )}
+            <div className="flex items-center gap-3">
+                <div className="relative flex-1 max-w-sm">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Rechercher une matière..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="pl-9 pr-8"
+                    />
+                    {search && (
+                        <button
+                            onClick={() => setSearch("")}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        >
+                            <X className="size-4" />
+                        </button>
+                    )}
+                </div>
+                <Button variant="outline" onClick={() => fetchSubjects(page)}>
+                    <RefreshCw className="mr-2 size-4" />
+                    Actualiser
+                </Button>
             </div>
 
             {/* Cards */}
