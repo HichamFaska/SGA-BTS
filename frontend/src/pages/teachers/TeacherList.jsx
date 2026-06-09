@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Eye, FileUp, GraduationCap, Loader2, Mail, Plus, Search, Trash2, UserPen, X } from "lucide-react"
+import { Eye, FileUp, GraduationCap, Loader2, Mail, Plus, RefreshCw, Search, Trash2, UserPen, X } from "lucide-react"
 
 import Can from "@/components/Can"
 import { Button } from "@/components/ui/button"
@@ -110,13 +110,13 @@ export default function TeacherList() {
             const response = await teacherService.show(teacher.id)
             const teach = response.data.teacher
             form.reset({
-                first_name: teach.first_name,
-                last_name: teach.last_name,
+                first_name: teach.user.first_name,
+                last_name: teach.user.last_name,
                 matricule: teach.matricule,
                 email: teach.user.email,
                 birth_date: teach.birth_date,
-                phone: teach.phone,
-                address: teach.address,
+                phone: teach.user.phone,
+                address: teach.user.address,
             })
         } catch {
             toastError("Impossible de charger le professeur.")
@@ -227,9 +227,13 @@ export default function TeacherList() {
                     <SelectContent>
                         <SelectItem value="all">Tous les statuts</SelectItem>
                         <SelectItem value="active">Actif</SelectItem>
-                        <SelectItem value="pending">En attente</SelectItem>
+                        <SelectItem value="inactive">Inactif</SelectItem>
                     </SelectContent>
                 </Select>
+                <Button variant="outline" onClick={() => fetchTeachers(page)}>
+                    <RefreshCw className="mr-2 size-4" />
+                    Actualiser
+                </Button>
             </div>
 
             <div className="rounded-xl border">
@@ -241,19 +245,20 @@ export default function TeacherList() {
                             <TableHead>Email</TableHead>
                             <TableHead>Téléphone</TableHead>
                             <TableHead>Statut</TableHead>
+                            <TableHead>Invitation</TableHead>
                             <TableHead className="w-10" />
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {loading ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="py-12 text-center">
+                                <TableCell colSpan={7} className="py-12 text-center">
                                     <Loader2 className="mx-auto size-6 animate-spin text-muted-foreground" />
                                 </TableCell>
                             </TableRow>
                         ) : teachers.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="py-16 text-center">
+                                <TableCell colSpan={7} className="py-16 text-center">
                                     <div className="flex flex-col items-center gap-3">
                                         <GraduationCap className="size-10 text-muted-foreground" />
                                         <p className="text-sm text-muted-foreground">Aucun professeur pour l&apos;instant.</p>
@@ -261,39 +266,40 @@ export default function TeacherList() {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            teachers.map((t) => {
+                            teachers.map((teacher) => {
                                 return (
-                                    <TableRow key={t.id}>
+                                    <TableRow key={teacher.id}>
                                         <TableCell>
                                             <div className="flex items-center gap-3">
                                                 <Avatar className="size-8">
-                                                    <AvatarImage src={t.avatar} alt={`${t.first_name} ${t.last_name}`} />
-                                                    <AvatarFallback className="text-xs">{t.first_name?.[0]}{t.last_name?.[0]}</AvatarFallback>
+                                                    <AvatarImage src={teacher.user.avatar} alt={`${teacher.user.first_name} ${teacher.user.last_name}`} />
+                                                    <AvatarFallback className="text-xs">{teacher.user.first_name[0]}{teacher.user.last_name[0]}</AvatarFallback>
                                                 </Avatar>
-                                                <span className="font-medium">{t.first_name} {t.last_name}</span>
+                                                <span className="font-medium">{teacher.user.first_name} {teacher.user.last_name}</span>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-muted-foreground">{t.matricule}</TableCell>
-                                        <TableCell className="text-muted-foreground">{t.user?.email}</TableCell>
-                                        <TableCell className="text-muted-foreground">{t.phone || "—"}</TableCell>
-                                        <TableCell><Badge variant={t.user?.status === "active" ? "success" : "secondary"}>{t.user?.status === "active" ? "Actif" : "En attente"}</Badge></TableCell>
+                                        <TableCell className="text-muted-foreground">{teacher.matricule}</TableCell>
+                                        <TableCell className="text-muted-foreground">{teacher.user.email}</TableCell>
+                                        <TableCell className="text-muted-foreground">{teacher.user.phone || "—"}</TableCell>
+                                        <TableCell><Badge variant={teacher.user.status === "active" ? "success" : "secondary"}>{teacher.user.status === "active" ? "Actif" : "Inactif"}</Badge></TableCell>
+                                        <TableCell><Badge variant={teacher.user.email_verified_at ? "success" : "warning"}>{teacher.user.email_verified_at ? "Acceptée" : "En attente"}</Badge></TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-1">
-                                                <Button variant="ghost" size="icon" className="size-8" onClick={() => setShowTarget(t)}>
+                                                <Button variant="ghost" size="icon" className="size-8" onClick={() => setShowTarget(teacher)}>
                                                     <Eye className="size-4" />
                                                 </Button>
                                                 <Can permission="teachers.update">
-                                                    <Button variant="ghost" size="icon" className="size-8" onClick={() => openEdit(t)}>
+                                                    <Button variant="ghost" size="icon" className="size-8" onClick={() => openEdit(teacher)}>
                                                         <UserPen className="size-4" />
                                                     </Button>
                                                 </Can>
                                                 <Can permission="teachers.resendInvitation">
-                                                    <Button variant="ghost" size="icon" className="size-8" onClick={() => setResendTarget(t)}>
+                                                    <Button variant="ghost" size="icon" className="size-8" onClick={() => setResendTarget(teacher)}>
                                                         <Mail className="size-4" />
                                                     </Button>
                                                 </Can>
                                                 <Can permission="teachers.delete">
-                                                    <Button variant="ghost" size="icon" className="size-8 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(t)}>
+                                                    <Button variant="ghost" size="icon" className="size-8 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(teacher)}>
                                                         <Trash2 className="size-4" />
                                                     </Button>
                                                 </Can>
@@ -356,31 +362,39 @@ export default function TeacherList() {
             {/* Show */}
             <Dialog open={!!showTarget} onOpenChange={(v) => !v && setShowTarget(null)}>
                 <DialogContent className="sm:max-w-2xl">
+                    {showTarget && (<>
                     <DialogHeader>
                         <div className="flex items-center gap-4">
                             <Avatar className="size-16">
-                                <AvatarImage src={showTarget?.avatar} alt={`${showTarget?.first_name} ${showTarget?.last_name}`} />
-                                <AvatarFallback className="text-lg">{showTarget?.first_name?.[0]}{showTarget?.last_name?.[0]}</AvatarFallback>
+                                <AvatarImage src={showTarget.user.avatar} alt={`${showTarget.user.first_name} ${showTarget.user.last_name}`} />
+                                <AvatarFallback className="text-lg">{showTarget.user.first_name[0]}{showTarget.user.last_name[0]}</AvatarFallback>
                             </Avatar>
                             <div>
-                                <DialogTitle className="text-xl">{showTarget?.first_name} {showTarget?.last_name}</DialogTitle>
-                                <p className="text-sm text-muted-foreground">{showTarget?.matricule}</p>
+                                <DialogTitle className="text-xl">{showTarget.user.first_name} {showTarget.user.last_name}</DialogTitle>
+                                <p className="text-sm text-muted-foreground">{showTarget.matricule}</p>
                             </div>
                         </div>
                     </DialogHeader>
                     <div className="divide-y text-sm">
                         {[
-                            ["Email",            showTarget?.user?.email],
-                            ["Téléphone",        showTarget?.phone],
-                            ["Date de naissance",showTarget?.birth_date],
-                            ["Adresse",          showTarget?.address],
+                            ["Email", showTarget.user.email],
+                            ["Téléphone", showTarget.user.phone],
+                            ["Date de naissance",showTarget.birth_date],
+                            ["Adresse", showTarget.user.address],
                         ].map(([label, value]) => (
                             <div key={label} className="grid grid-cols-2 gap-2 py-2">
                                 <span className="text-muted-foreground">{label}</span>
                                 <span className="font-medium">{value || "—"}</span>
                             </div>
                         ))}
+                        <div className="grid grid-cols-2 gap-2 py-2">
+                            <span className="text-muted-foreground">Invitation</span>
+                            <Badge variant={showTarget.user.email_verified_at ? "success" : "warning"} className="w-fit">
+                                {showTarget.user.email_verified_at ? "Acceptée" : "En attente"}
+                            </Badge>
+                        </div>
                     </div>
+                    </>)}
                 </DialogContent>
             </Dialog>
 
@@ -473,15 +487,15 @@ export default function TeacherList() {
                         <DialogTitle>Renvoyer l&apos;invitation</DialogTitle>
                         <DialogDescription>
                             Êtes-vous sûr de vouloir renvoyer l&apos;invitation à{" "}
-                            <span className="font-medium text-foreground">{resendTarget?.first_name} {resendTarget?.last_name}</span>{" "}
+                            {resendTarget && <span className="font-medium text-foreground">{resendTarget.user.first_name} {resendTarget.user.last_name}</span>}{" "}
                             ?
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setResendTarget(null)}>Annuler</Button>
-                        <Button className="bg-green-600 hover:bg-green-700" onClick={handleResend} disabled={resending === resendTarget?.id}>
+                        <Button variant="success" onClick={handleResend} disabled={resending === resendTarget?.id}>
                             {resending === resendTarget?.id && <Loader2 className="mr-2 size-4 animate-spin" />}
-                            Envoyer
+                            <Mail className="size-4" /> Envoyer
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -494,7 +508,7 @@ export default function TeacherList() {
                         <DialogTitle>Supprimer le professeur</DialogTitle>
                         <DialogDescription>
                             Êtes-vous sûr de vouloir supprimer{" "}
-                            <span className="font-medium text-foreground">{deleteTarget?.first_name} {deleteTarget?.last_name}</span>{" "}
+                            {deleteTarget && <span className="font-medium text-foreground">{deleteTarget.user.first_name} {deleteTarget.user.last_name}</span>}{" "}
                             ? Cette action est irréversible.
                         </DialogDescription>
                     </DialogHeader>

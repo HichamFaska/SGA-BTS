@@ -58,7 +58,7 @@ class TeacherImportController extends Controller {
         $newUsersData = [];
 
         foreach ($rows as $row) {
-            $email    = strtolower(trim($row['email']));
+            $email = strtolower(trim($row['email']));
             $existing = $existingUsers->get($email);
 
             if ($existing?->teacher) {
@@ -73,9 +73,13 @@ class TeacherImportController extends Controller {
 
             if (!$existing) {
                 $newUsersData[] = [
+                    'first_name' => $row['first_name'],
+                    'last_name'  => $row['last_name'],
                     'email' => $email,
-                    'password' => Str::random(16),
-                    'role' => UserRoleEnum::TEACHER->value,
+                    'password' => bcrypt(Str::random(16)),
+                    'role' => UserRoleEnum::Teacher->value,
+                    'phone' => $row['phone'] ?: null,
+                    'address' => $row['address'] ?: null,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
@@ -97,16 +101,12 @@ class TeacherImportController extends Controller {
             }
 
             $validEmails = collect($validRows)->pluck('email')->all();
-            $allUsers = User::whereIn('email', $validEmails)->get()->keyBy('email');
+            $allUsers    = User::whereIn('email', $validEmails)->get()->keyBy('email');
 
             $teacherRows = collect($validRows)->map(fn($row) => [
-                'matricule'  => $row['matricule'],
                 'user_id' => $allUsers[$row['email']]->id,
-                'first_name' => $row['first_name'],
-                'last_name'  => $row['last_name'],
+                'matricule' => $row['matricule'],
                 'birth_date' => $row['birth_date'] ?: null,
-                'phone'      => $row['phone'] ?: null,
-                'address'    => $row['address'] ?: null,
                 'created_at' => $now,
                 'updated_at' => $now,
             ])->all();
@@ -114,7 +114,7 @@ class TeacherImportController extends Controller {
             Teacher::upsert(
                 $teacherRows,
                 ['matricule'],
-                ['user_id', 'first_name', 'last_name', 'birth_date', 'phone', 'address', 'updated_at']
+                ['user_id', 'birth_date', 'updated_at']
             );
 
             $userIds = collect($validRows)->map(fn($row) => $allUsers[$row['email']]->id)->all();
@@ -123,7 +123,7 @@ class TeacherImportController extends Controller {
 
             $invitationRows = collect($validRows)->map(fn($row) => [
                 'user_id' => $allUsers[$row['email']]->id,
-                'invited_by' => $admin->id,
+                'invited_by'  => $admin->id,
                 'token' => Str::random(64),
                 'expires_at' => $now->copy()->addDays(7),
                 'accepted_at' => null,
