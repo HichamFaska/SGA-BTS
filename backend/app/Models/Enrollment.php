@@ -18,13 +18,11 @@ class Enrollment extends Model {
         'academic_year_id',
         'enrollment_date',
         'status',
-        'is_validated_for_next_year',
     ];
 
     protected $casts = [
         'enrollment_date' => 'date',
         'status' => EnrollmentStatusEnum::class,
-        'is_validated_for_next_year' => 'boolean',
     ];
 
     public function student(): BelongsTo {

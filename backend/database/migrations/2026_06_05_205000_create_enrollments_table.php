@@ -15,7 +15,6 @@ return new class extends Migration {
             $table->foreignId('academic_year_id')->constrained('academic_years')->cascadeOnDelete();
             $table->date('enrollment_date');
             $table->enum('status', array_column(EnrollmentStatusEnum::cases(), 'value'))->default(EnrollmentStatusEnum::Active->value);
-            $table->boolean('is_validated_for_next_year')->default(false);
             $table->timestamps();
 
             $table->unique(['student_id', 'class_id', 'academic_year_id'], 'unique_enrollment');
