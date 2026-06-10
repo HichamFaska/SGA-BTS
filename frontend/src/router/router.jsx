@@ -11,6 +11,7 @@ import FiliereList from "@/pages/filieres/FiliereList"
 import StudentList from "@/pages/students/StudentList"
 import SubjectList from "@/pages/subjects/SubjectList"
 import TeacherList from "@/pages/teachers/TeacherList"
+import AcademicYearList from "@/pages/academic-years/AcademicYearList"
 import Absences from "@/pages/Absences"
 import AppSettings from "@/pages/AppSettings"
 import NotFound from "@/pages/NotFound"
@@ -55,6 +56,7 @@ const router = createBrowserRouter([
             { path: "/subjects", element: <SubjectList /> },
             { path: "/filieres", element: <FiliereList /> },
             { path: "/classes", element: <ClasseList /> },
+            { path: "/academic-years", element: <AcademicYearList /> },
             { path: "/absences", element: <Absences /> },
             { path: "/settings", element: <AppSettings /> },
         ],

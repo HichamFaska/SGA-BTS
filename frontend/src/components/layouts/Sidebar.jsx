@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, GraduationCap, CalendarX, BookOpen, FolderOpen, School, Settings, X } from "lucide-react"
+import { LayoutDashboard, Users, GraduationCap, CalendarX, CalendarDays, BookOpen, FolderOpen, School, Settings, X } from "lucide-react"
 import { NavLink, useLocation } from "react-router-dom"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
@@ -10,13 +10,14 @@ const APP_NAME = import.meta.env.VITE_APP_NAME
 
 const navItems = [
     { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
-    { label: "Étudiants", to: "/students",  icon: Users, permission: "students.viewAny" },
-    { label: "Professeurs", to: "/teachers",  icon: GraduationCap, permission: "teachers.viewAny" },
-    { label: "Matières", to: "/subjects",  icon: BookOpen, permission: "subjects.viewAny" },
-    { label: "Filières", to: "/filieres",  icon: FolderOpen, permission: "filieres.viewAny" },
-    { label: "Classes", to: "/classes",   icon: School, permission: "classes.viewAny" },
-    { label: "Absences", to: "/absences",  icon: CalendarX },
-    { label: "Paramètres", to: "/settings",  icon: Settings },
+    { label: "Étudiants", to: "/students", icon: Users, permission: "students.viewAny" },
+    { label: "Professeurs", to: "/teachers", icon: GraduationCap, permission: "teachers.viewAny" },
+    { label: "Matières", to: "/subjects", icon: BookOpen, permission: "subjects.viewAny" },
+    { label: "Filières", to: "/filieres", icon: FolderOpen, permission: "filieres.viewAny" },
+    { label: "Classes", to: "/classes", icon: School, permission: "classes.viewAny" },
+    { label: "Années académiques", to: "/academic-years", icon: CalendarDays, permission: "academic_years.viewAny" },
+    { label: "Absences", to: "/absences", icon: CalendarX },
+    { label: "Paramètres", to: "/settings", icon: Settings },
 ]
 
 function NavItem({ item, onClose }) {
