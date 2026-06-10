@@ -88,12 +88,9 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('subjects.')
         ->group(function () {
 
-            Route::middleware('role:admin,teacher')->group(function () {
+            Route::middleware('role:admin')->group(function () {
                 Route::get('/', [SubjectController::class, 'index'])->name('index');
                 Route::get('/{subject}', [SubjectController::class, 'show'])->name('show');
-            });
-
-            Route::middleware('role:admin')->group(function () {
                 Route::post('/', [SubjectController::class, 'store'])->name('store');
                 Route::put('/{subject}', [SubjectController::class, 'update'])->name('update');
                 Route::delete('/{subject}', [SubjectController::class, 'destroy'])->name('destroy');
@@ -104,7 +101,14 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('academic-years.')
         ->group(function () {
             Route::middleware('role:admin,teacher')->group(function () {
+                Route::get('/', [AcademicYearController::class, 'index'])->name('index');
                 Route::get('/list', [AcademicYearController::class, 'list'])->name('list');
+                Route::get('/{academic_year}', [AcademicYearController::class, 'show'])->name('show');
+            });
+            Route::middleware('role:admin')->group(function () {
+                Route::post('/', [AcademicYearController::class, 'store'])->name('store');
+                Route::put('/{academic_year}', [AcademicYearController::class, 'update'])->name('update');
+                Route::delete('/{academic_year}', [AcademicYearController::class, 'destroy'])->name('destroy');
             });
         });
 
