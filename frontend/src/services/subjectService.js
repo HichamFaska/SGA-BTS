@@ -6,6 +6,11 @@ export const subjectService = {
         return response.data
     },
 
+    async listAll() {
+        const response = await api.get("/subjects/list")
+        return response.data
+    },
+
     async show(id) {
         const response = await api.get(`/subjects/${id}`)
         return response.data
