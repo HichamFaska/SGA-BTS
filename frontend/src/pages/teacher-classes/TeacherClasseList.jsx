@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { BookUser, Check, ChevronsUpDown, Loader2, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react"
+import { BookUser, Check, ChevronsUpDown, Info, Loader2, Pencil, Plus, RefreshCw, Trash2, CalendarRange } from "lucide-react"
 
 import Can from "@/components/Can"
 import { Button } from "@/components/ui/button"
@@ -33,6 +33,8 @@ import teacherClasseService from "@/services/teacherClasseService"
 import teacherService from "@/services/teacherService"
 import classeService from "@/services/classeService"
 import academicYearService from "@/services/academicYearService"
+import { Input } from "@/components/ui/input"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { teacherClasseSchema } from "@/schemas/teacherClasseSchema"
 import { handleApiErrors } from "@/lib/api-errors"
 
@@ -40,6 +42,8 @@ const defaultValues = {
     teacher_id: "",
     class_id: "",
     academic_year_id: "",
+    start_date: "",
+    end_date: "",
 }
 
 export default function TeacherClasseList() {
@@ -131,6 +135,8 @@ export default function TeacherClasseList() {
             teacher_id: String(assignment.teacher?.id ?? ""),
             class_id: String(assignment.classe?.id ?? ""),
             academic_year_id: String(assignment.academic_year?.id ?? ""),
+            start_date: assignment.start_date ?? "",
+            end_date: assignment.end_date ?? "",
         })
         setEditFormOpen(true)
     }
@@ -271,6 +277,7 @@ export default function TeacherClasseList() {
                             <TableHead>Matière</TableHead>
                             <TableHead>Classe</TableHead>
                             <TableHead>Année académique</TableHead>
+                            <TableHead>Période</TableHead>
                             <TableHead className="w-10" />
                         </TableRow>
                     </TableHeader>
@@ -312,6 +319,12 @@ export default function TeacherClasseList() {
                                             {assignment.academic_year?.is_current && (
                                                 <span className="text-xs text-emerald-600 font-medium">en cours</span>
                                             )}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell>
+                                        <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                                            <CalendarRange className="size-3.5 shrink-0" />
+                                            {assignment.start_date} → {assignment.end_date}
                                         </span>
                                     </TableCell>
                                     <TableCell>
@@ -507,6 +520,30 @@ export default function TeacherClasseList() {
                                 </FormItem>
                             )} />
 
+                            <Alert className="border-blue-200 bg-blue-50 text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300">
+                                <Info className="size-4" />
+                                <AlertDescription>
+                                    Si les dates ne sont pas renseignées, elles seront automatiquement définies selon les dates de l&apos;année académique sélectionnée.
+                                </AlertDescription>
+                            </Alert>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField control={form.control} name="start_date" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Date de début <span className="text-xs text-muted-foreground">(optionnel)</span></FormLabel>
+                                        <FormControl><Input type="date" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <FormField control={form.control} name="end_date" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Date de fin <span className="text-xs text-muted-foreground">(optionnel)</span></FormLabel>
+                                        <FormControl><Input type="date" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                            </div>
+
                             <DialogFooter>
                                 <Button type="button" variant="outline" onClick={closeCreate}>Annuler</Button>
                                 <Button type="submit" disabled={form.formState.isSubmitting}>
@@ -589,6 +626,23 @@ export default function TeacherClasseList() {
                                     <FormMessage />
                                 </FormItem>
                             )} />
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField control={form.control} name="start_date" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Date de début</FormLabel>
+                                        <FormControl><Input type="date" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <FormField control={form.control} name="end_date" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Date de fin</FormLabel>
+                                        <FormControl><Input type="date" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                            </div>
 
                             <DialogFooter>
                                 <Button type="button" variant="outline" onClick={closeEdit}>Annuler</Button>
