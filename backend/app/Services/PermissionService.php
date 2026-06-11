@@ -6,6 +6,7 @@ use App\Models\AcademicYear;
 use App\Models\Classe;
 use App\Models\Enrollment;
 use App\Models\Filiere;
+use App\Models\TeacherClasse;
 use App\Models\Invitation;
 use App\Models\Student;
 use App\Models\Subject;
@@ -71,6 +72,12 @@ class PermissionService {
                 'update' => $user->can('update', new Enrollment()),
                 'delete' => $user->can('delete', new Enrollment()),
                 'bulkCreate' => $user->can('bulkCreate', Enrollment::class),
+            ],
+            'teacher_classes' => [
+                'viewAny' => $user->can('viewAny', TeacherClasse::class),
+                'create' => $user->can('create', TeacherClasse::class),
+                'update' => $user->can('update', new TeacherClasse()),
+                'delete' => $user->can('delete', new TeacherClasse()),
             ],
         ];
     }
