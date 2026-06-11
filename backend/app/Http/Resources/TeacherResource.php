@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class TeacherResource extends JsonResource {
 
@@ -21,7 +22,7 @@ class TeacherResource extends JsonResource {
                 'last_name' => $this->user->last_name,
                 'phone' => $this->user->phone,
                 'address' => $this->user->address,
-                'avatar' => $this->user->avatar,
+                'avatar' => $this->user->avatar ? Storage::disk('public')->url($this->user->avatar) : null,
                 'email_verified_at' => $this->user->email_verified_at?->toDateTimeString(),
             ]),
             'created_at' => $this->created_at?->toDateTimeString(),
