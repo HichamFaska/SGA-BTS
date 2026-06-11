@@ -1,4 +1,4 @@
-import { ShieldAlert } from "lucide-react"
+import { Ban } from "lucide-react"
 
 function Forbidden() {
     return (
@@ -6,7 +6,7 @@ function Forbidden() {
             <div className="w-full max-w-md rounded-md p-8">
                 <div className="flex flex-col items-center gap-5 text-center">
                     <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-red-500/15 text-red-500">
-                        <ShieldAlert className="h-7 w-7" />
+                        <Ban className="h-7 w-7" />
                     </div>
 
                     <div className="space-y-2">

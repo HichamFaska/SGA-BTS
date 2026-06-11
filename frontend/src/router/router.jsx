@@ -1,6 +1,8 @@
 import { Navigate, createBrowserRouter } from "react-router-dom"
 import AuthGuard from "@/router/guards/AuthGuard"
 import GuestGuard from "@/router/guards/GuestGuard"
+import PermissionGuard from "@/router/guards/PermissionGuard"
+import RoleGuard from "@/router/guards/RoleGuard"
 import { AuthLayout } from "@/components/layouts/AuthLayout"
 import { AppLayout } from "@/components/layouts/AppLayout"
 import Login from "@/pages/Login"
@@ -18,6 +20,7 @@ import Absences from "@/pages/Absences"
 import AppSettings from "@/pages/AppSettings"
 import NotFound from "@/pages/NotFound"
 import { RouteErrorBoundary } from "@/components/ErrorBoundary"
+import Forbidden from "@/pages/Forbidden"
 
 const protectedLayout = (
     <AuthGuard>
@@ -53,17 +56,21 @@ const router = createBrowserRouter([
         errorElement: <RouteErrorBoundary />,
         children: [
             { path: "/dashboard", element: <Dashboard /> },
-            { path: "/students", element: <StudentList /> },
-            { path: "/teachers", element: <TeacherList /> },
-            { path: "/subjects", element: <SubjectList /> },
-            { path: "/filieres", element: <FiliereList /> },
-            { path: "/classes", element: <ClasseList /> },
-            { path: "/academic-years", element: <AcademicYearList /> },
-            { path: "/enrollments", element: <EnrollmentList /> },
-            { path: "/enrollments/bulk", element: <BulkEnrollment /> },
+            { path: "/students", element: <PermissionGuard permission="students.viewAny"><StudentList /></PermissionGuard> },
+            { path: "/teachers", element: <PermissionGuard permission="teachers.viewAny"><TeacherList /></PermissionGuard> },
+            { path: "/subjects", element: <PermissionGuard permission="subjects.viewAny"><SubjectList /></PermissionGuard> },
+            { path: "/filieres", element: <PermissionGuard permission="filieres.viewAny"><FiliereList /></PermissionGuard> },
+            { path: "/classes", element: <PermissionGuard permission="classes.viewAny"><ClasseList /></PermissionGuard> },
+            { path: "/academic-years", element: <PermissionGuard permission="academic_years.viewAny"><AcademicYearList /></PermissionGuard> },
+            { path: "/enrollments", element: <PermissionGuard permission="enrollments.viewAny"><EnrollmentList /></PermissionGuard> },
+            { path: "/enrollments/bulk", element: <PermissionGuard permission="enrollments.bulkCreate"><BulkEnrollment /></PermissionGuard> },
             { path: "/absences", element: <Absences /> },
-            { path: "/settings", element: <AppSettings /> },
+            { path: "/settings", element: <RoleGuard role="admin"><AppSettings /></RoleGuard> },
         ],
+    },
+    {
+        path: "/403",
+        element: <Forbidden />,
     },
     {
         path: "*",
