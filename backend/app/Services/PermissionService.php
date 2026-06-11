@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AcademicYear;
 use App\Models\Classe;
+use App\Models\Enrollment;
 use App\Models\Filiere;
 use App\Models\Invitation;
 use App\Models\Student;
@@ -62,6 +63,14 @@ class PermissionService {
                 'create' => $user->can('create', AcademicYear::class),
                 'update' => $user->can('update', new AcademicYear()),
                 'delete' => $user->can('delete', new AcademicYear()),
+            ],
+            'enrollments' => [
+                'viewAny' => $user->can('viewAny', Enrollment::class),
+                'view' => $user->can('view', new Enrollment()),
+                'create' => $user->can('create', Enrollment::class),
+                'update' => $user->can('update', new Enrollment()),
+                'delete' => $user->can('delete', new Enrollment()),
+                'bulkCreate' => $user->can('bulkCreate', Enrollment::class),
             ],
         ];
     }
