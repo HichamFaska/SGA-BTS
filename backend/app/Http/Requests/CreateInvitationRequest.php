@@ -32,6 +32,7 @@ class CreateInvitationRequest extends FormRequest {
             'phone' => ['nullable', 'string', 'max:50'],
             'address' => ['nullable', 'string', 'max:255'],
             'avatar' => ['nullable', 'string', 'max:255'],
+            'subject_id' => ['nullable', 'integer', 'exists:subjects,id'],
         ];
     }
 
@@ -68,6 +69,8 @@ class CreateInvitationRequest extends FormRequest {
             
             'avatar.string' => 'L\'avatar doit être une chaîne de caractères.',
             'avatar.max' => 'L\'avatar ne doit pas dépasser 255 caractères.',
+            'subject_id.integer' => 'La matière doit être un entier.',
+            'subject_id.exists' => 'La matière sélectionnée est invalide.',
         ];
     }
 }

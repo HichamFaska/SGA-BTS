@@ -27,8 +27,9 @@ class TeacherService {
         ]);
 
         $user->teacher()->create([
-            'matricule'  => $data['matricule'],
+            'matricule' => $data['matricule'],
             'birth_date' => $data['birth_date'] ?? null,
+            'subject_id' => $data['subject_id'] ?? null,
         ]);
 
         return $user->load('teacher');

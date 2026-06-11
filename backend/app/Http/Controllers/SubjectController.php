@@ -36,6 +36,17 @@ class SubjectController extends Controller {
         ], 'Liste des matières récupérée avec succès.');
     }
 
+    public function list(): JsonResponse {
+
+        $this->authorize('viewAny', Subject::class);
+
+        $subjects = $this->subjectRepository->list();
+
+        return $this->successResponse([
+            'subjects' => SubjectResource::collection($subjects),
+        ], 'Liste des matières récupérée avec succès.');
+    }
+
     public function store(StoreSubjectRequest $request): JsonResponse {
 
         $this->authorize('create', Subject::class);

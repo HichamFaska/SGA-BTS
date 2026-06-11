@@ -92,6 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
             Route::middleware('role:admin')->group(function () {
                 Route::get('/', [SubjectController::class, 'index'])->name('index');
+                Route::get('/list', [SubjectController::class, 'list'])->name('list');
                 Route::get('/{subject}', [SubjectController::class, 'show'])->name('show');
                 Route::post('/', [SubjectController::class, 'store'])->name('store');
                 Route::put('/{subject}', [SubjectController::class, 'update'])->name('update');

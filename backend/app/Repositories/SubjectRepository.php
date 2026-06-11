@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Subject;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class SubjectRepository {
 
@@ -11,6 +12,10 @@ class SubjectRepository {
         return Subject::search($search)
             ->latest()
             ->paginate(10);
+    }
+
+    public function list(): Collection {
+        return Subject::orderBy('name')->get();
     }
 
     public function find(int $id): ?Subject {
