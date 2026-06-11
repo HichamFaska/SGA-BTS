@@ -275,18 +275,20 @@ export default function EnrollmentList() {
                         </p>
                     </div>
                 </div>
-                <Can permission="enrollments.create">
-                    <div className="flex gap-2">
+                <div className="flex gap-2">
+                    <Can permission="enrollments.bulkCreate">
                         <Button variant="outline" onClick={() => navigate("/enrollments/bulk")}>
                             <Users className="mr-2 size-4" />
                             Inscription en masse
                         </Button>
+                    </Can>
+                    <Can permission="enrollments.create">
                         <Button onClick={openCreate}>
                             <Plus className="mr-2 size-4" />
                             Inscrire un étudiant
                         </Button>
-                    </div>
-                </Can>
+                    </Can>
+                </div>
             </div>
 
             {/* Filters */}
