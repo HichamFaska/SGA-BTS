@@ -31,18 +31,30 @@ import {
     PaginationItem, PaginationLink, PaginationNext, PaginationPrevious,
 } from "@/components/ui/pagination"
 import teacherService from "@/services/teacherService"
+import subjectService from "@/services/subjectService"
 import ImportDialog from "@/components/ImportDialog"
-import { teacherInvitationSchema } from "@/schemas/teacherInvitationSchema"
+import { teacherInvitationSchema, teacherUpdateSchema } from "@/schemas/teacherInvitationSchema"
 import { handleApiErrors } from "@/lib/api-errors"
 import { useDebounce } from "@/hooks/useDebounce"
 
-const defaultValues = {
+const createDefaultValues = {
     first_name: "",
     last_name: "",
     matricule: "",
     email: "",
     birth_date: "",
     phone: "",
+    address: "",
+    subject_id: "",
+}
+
+const editDefaultValues = {
+    first_name: "",
+    last_name: "",
+    matricule: "",
+    birth_date: "",
+    phone: "",
+    subject_id: "",
     address: "",
 }
 
@@ -62,15 +74,22 @@ export default function TeacherList() {
     const [resending, setResending] = useState(null)
     const [statusTarget, setStatusTarget] = useState(null)
     const [togglingStatus, setTogglingStatus] = useState(false)
+    const [subjects, setSubjects] = useState([])
     const [importOpen, setImportOpen] = useState(false)
-    const [formOpen, setFormOpen] = useState(false)
+    const [createFormOpen, setCreateFormOpen] = useState(false)
+    const [editFormOpen, setEditFormOpen] = useState(false)
     const [editTarget, setEditTarget] = useState(null)
     const [loadingForm, setLoadingForm] = useState(false)
     const debouncedSearch = useDebounce(search)
 
-    const form = useForm({
+    const createForm = useForm({
         resolver: zodResolver(teacherInvitationSchema),
-        defaultValues,
+        defaultValues: createDefaultValues,
+    })
+
+    const editForm = useForm({
+        resolver: zodResolver(teacherUpdateSchema),
+        defaultValues: editDefaultValues,
     })
 
     const fetchTeachers = async (p = page, filters = {}) => {
@@ -90,6 +109,12 @@ export default function TeacherList() {
     }
 
     useEffect(() => {
+        subjectService.listAll()
+            .then((res) => setSubjects(res.data.subjects ?? []))
+            .catch(() => {})
+    }, [])
+
+    useEffect(() => {
         fetchTeachers(page)
     }, [page])
 
@@ -99,54 +124,66 @@ export default function TeacherList() {
     }, [debouncedSearch, statusFilter])
 
     const openCreate = () => {
-        setEditTarget(null)
-        form.reset(defaultValues)
-        setFormOpen(true)
+        createForm.reset(createDefaultValues)
+        setCreateFormOpen(true)
+    }
+
+    const closeCreate = () => {
+        setCreateFormOpen(false)
+        createForm.reset(createDefaultValues)
     }
 
     const openEdit = async (teacher) => {
         setEditTarget(teacher)
         setLoadingForm(true)
-        setFormOpen(true)
+        setEditFormOpen(true)
         try {
             const response = await teacherService.show(teacher.id)
             const teach = response.data.teacher
-            form.reset({
+            editForm.reset({
                 first_name: teach.user.first_name,
                 last_name: teach.user.last_name,
                 matricule: teach.matricule,
-                email: teach.user.email,
                 birth_date: teach.birth_date,
                 phone: teach.user.phone,
+                subject_id: teach.subject_id ? String(teach.subject_id) : "",
                 address: teach.user.address,
             })
         } catch {
             toastError("Impossible de charger le professeur.")
-            setFormOpen(false)
+            setEditFormOpen(false)
         } finally {
             setLoadingForm(false)
         }
     }
 
-    const closeForm = () => {
-        setFormOpen(false)
+    const closeEdit = () => {
+        setEditFormOpen(false)
         setEditTarget(null)
-        form.reset(defaultValues)
+        editForm.reset(editDefaultValues)
     }
 
-    const onSubmit = async (values) => {
+    const onSubmitCreate = async (values) => {
         try {
-            if (editTarget) {
-                const response = await teacherService.update(editTarget.id, values)
-                toastSuccess(response.message)
-            } else {
-                const response = await teacherService.create(values)
-                toastSuccess(response.message)
-            }
-            closeForm()
+            const response = await teacherService.create(values)
+            toastSuccess(response.message)
+            closeCreate()
             fetchTeachers(page)
         } catch (err) {
-            if (!handleApiErrors(err, form.setError)){
+            if (!handleApiErrors(err, createForm.setError)) {
+                toastError(err.message)
+            }
+        }
+    }
+
+    const onSubmitEdit = async (values) => {
+        try {
+            const response = await teacherService.update(editTarget.id, values)
+            toastSuccess(response.message)
+            closeEdit()
+            fetchTeachers(page)
+        } catch (err) {
+            if (!handleApiErrors(err, editForm.setError)) {
                 toastError(err.message)
             }
         }
@@ -238,7 +275,7 @@ export default function TeacherList() {
                         </button>
                     )}
                 </div>
-                <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v === "all" ? "" : v)}>
+                <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value === "all" ? "" : value)}>
                     <SelectTrigger className="w-44">
                         <SelectValue placeholder="Tous les statuts" />
                     </SelectTrigger>
@@ -284,59 +321,57 @@ export default function TeacherList() {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            teachers.map((teacher) => {
-                                return (
-                                    <TableRow key={teacher.id}>
-                                        <TableCell>
-                                            <div className="flex items-center gap-3">
-                                                <Avatar className="size-8">
-                                                    <AvatarImage src={teacher.user.avatar} alt={`${teacher.user.first_name} ${teacher.user.last_name}`} />
-                                                    <AvatarFallback className="text-xs">{teacher.user.first_name[0]}{teacher.user.last_name[0]}</AvatarFallback>
-                                                </Avatar>
-                                                <span className="font-medium">{teacher.user.first_name} {teacher.user.last_name}</span>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="text-muted-foreground">{teacher.matricule}</TableCell>
-                                        <TableCell className="text-muted-foreground">{teacher.user.email}</TableCell>
-                                        <TableCell className="text-muted-foreground">{teacher.user.phone || "—"}</TableCell>
-                                        <TableCell><Badge variant={teacher.user.status === "active" ? "success" : "secondary"}>{teacher.user.status === "active" ? "Actif" : "Inactif"}</Badge></TableCell>
-                                        <TableCell><Badge variant={teacher.user.email_verified_at ? "success" : "warning"}>{teacher.user.email_verified_at ? "Acceptée" : "En attente"}</Badge></TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-1">
-                                                <Button variant="ghost" size="icon" className="size-8" onClick={() => setShowTarget(teacher)}>
-                                                    <Eye className="size-4" />
+                            teachers.map((teacher) => (
+                                <TableRow key={teacher.id}>
+                                    <TableCell>
+                                        <div className="flex items-center gap-3">
+                                            <Avatar className="size-8">
+                                                <AvatarImage src={teacher.user.avatar} alt={`${teacher.user.first_name} ${teacher.user.last_name}`} />
+                                                <AvatarFallback className="text-xs">{teacher.user.first_name[0]}{teacher.user.last_name[0]}</AvatarFallback>
+                                            </Avatar>
+                                            <span className="font-medium">{teacher.user.first_name} {teacher.user.last_name}</span>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="text-muted-foreground">{teacher.matricule}</TableCell>
+                                    <TableCell className="text-muted-foreground">{teacher.user.email}</TableCell>
+                                    <TableCell className="text-muted-foreground">{teacher.user.phone || "—"}</TableCell>
+                                    <TableCell><Badge variant={teacher.user.status === "active" ? "success" : "secondary"}>{teacher.user.status === "active" ? "Actif" : "Inactif"}</Badge></TableCell>
+                                    <TableCell><Badge variant={teacher.user.email_verified_at ? "success" : "warning"}>{teacher.user.email_verified_at ? "Acceptée" : "En attente"}</Badge></TableCell>
+                                    <TableCell>
+                                        <div className="flex items-center gap-1">
+                                            <Button variant="ghost" size="icon" className="size-8" onClick={() => setShowTarget(teacher)}>
+                                                <Eye className="size-4" />
+                                            </Button>
+                                            <Can permission="teachers.update">
+                                                <Button variant="ghost" size="icon" className="size-8" onClick={() => openEdit(teacher)}>
+                                                    <UserPen className="size-4" />
                                                 </Button>
-                                                <Can permission="teachers.update">
-                                                    <Button variant="ghost" size="icon" className="size-8" onClick={() => openEdit(teacher)}>
-                                                        <UserPen className="size-4" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className={`size-8 ${teacher.user.status === "active" ? "text-destructive hover:text-destructive" : "text-success hover:text-success"}`}
-                                                        onClick={() => setStatusTarget(teacher)}
-                                                    >
-                                                        {teacher.user.status === "active"
-                                                            ? <UserX className="size-4" />
-                                                            : <UserCheck className="size-4" />
-                                                        }
-                                                    </Button>
-                                                </Can>
-                                                <Can permission="teachers.resendInvitation">
-                                                    <Button variant="ghost" size="icon" className="size-8" onClick={() => setResendTarget(teacher)}>
-                                                        <Mail className="size-4" />
-                                                    </Button>
-                                                </Can>
-                                                <Can permission="teachers.delete">
-                                                    <Button variant="ghost" size="icon" className="size-8 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(teacher)}>
-                                                        <Trash2 className="size-4" />
-                                                    </Button>
-                                                </Can>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                )
-                            })
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className={`size-8 ${teacher.user.status === "active" ? "text-destructive hover:text-destructive" : "text-success hover:text-success"}`}
+                                                    onClick={() => setStatusTarget(teacher)}
+                                                >
+                                                    {teacher.user.status === "active"
+                                                        ? <UserX className="size-4" />
+                                                        : <UserCheck className="size-4" />
+                                                    }
+                                                </Button>
+                                            </Can>
+                                            <Can permission="teachers.resendInvitation">
+                                                <Button variant="ghost" size="icon" className="size-8" onClick={() => setResendTarget(teacher)}>
+                                                    <Mail className="size-4" />
+                                                </Button>
+                                            </Can>
+                                            <Can permission="teachers.delete">
+                                                <Button variant="ghost" size="icon" className="size-8 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(teacher)}>
+                                                    <Trash2 className="size-4" />
+                                                </Button>
+                                            </Can>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))
                         )}
                     </TableBody>
                 </Table>
@@ -426,69 +461,170 @@ export default function TeacherList() {
                 </DialogContent>
             </Dialog>
 
-            {/* Create / Edit */}
-            <Dialog open={formOpen} onOpenChange={(v) => !v && closeForm()}>
+            {/* Create */}
+            <Dialog open={createFormOpen} onOpenChange={(v) => !v && closeCreate()}>
                 <DialogContent className="sm:max-w-3xl">
                     <DialogHeader>
-                        <DialogTitle>{editTarget ? "Modifier le professeur" : "Inviter un professeur"}</DialogTitle>
-                        <DialogDescription>
-                            {editTarget ? "Modifiez les informations du professeur." : "Un email d'invitation sera envoyé à l'adresse saisie."}
-                        </DialogDescription>
+                        <DialogTitle>Inviter un professeur</DialogTitle>
+                        <DialogDescription>Un email d&apos;invitation sera envoyé à l&apos;adresse saisie.</DialogDescription>
+                    </DialogHeader>
+                    <FormProvider {...createForm}>
+                        <form onSubmit={createForm.handleSubmit(onSubmitCreate)} className="space-y-5">
+                            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                                <FormField control={createForm.control} name="first_name" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Prénom</FormLabel>
+                                        <FormControl><Input placeholder="Ahmed" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <FormField control={createForm.control} name="last_name" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Nom</FormLabel>
+                                        <FormControl><Input placeholder="Benali" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <FormField control={createForm.control} name="matricule" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Matricule</FormLabel>
+                                        <FormControl><Input placeholder="ENS-001" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <FormField control={createForm.control} name="email" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Email</FormLabel>
+                                        <FormControl><Input type="email" placeholder="prof@ecole.ma" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <FormField control={createForm.control} name="birth_date" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Date de naissance</FormLabel>
+                                        <FormControl><Input type="date" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <FormField control={createForm.control} name="phone" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Téléphone</FormLabel>
+                                        <FormControl><Input placeholder="06 00 00 00 00" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <FormField control={createForm.control} name="subject_id" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Matière</FormLabel>
+                                        <Select value={String(field.value)} onValueChange={field.onChange}>
+                                            <FormControl>
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue placeholder="Choisir une matière..." />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {subjects.map((subject) => (
+                                                    <SelectItem key={subject.id} value={String(subject.id)}>
+                                                        {subject.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <FormField control={createForm.control} name="address" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Adresse</FormLabel>
+                                        <FormControl><Input placeholder="Rue, ville..." {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                            </div>
+                            <DialogFooter>
+                                <Button type="button" variant="outline" onClick={closeCreate}>Annuler</Button>
+                                <Button type="submit" disabled={createForm.formState.isSubmitting}>
+                                    {createForm.formState.isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
+                                    Envoyer l&apos;invitation
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </FormProvider>
+                </DialogContent>
+            </Dialog>
+
+            {/* Edit */}
+            <Dialog open={editFormOpen} onOpenChange={(v) => !v && closeEdit()}>
+                <DialogContent className="sm:max-w-3xl">
+                    <DialogHeader>
+                        <DialogTitle>Modifier le professeur</DialogTitle>
+                        <DialogDescription>Modifiez les informations du professeur.</DialogDescription>
                     </DialogHeader>
                     {loadingForm ? (
                         <div className="flex h-40 items-center justify-center">
                             <Loader2 className="size-6 animate-spin text-muted-foreground" />
                         </div>
                     ) : (
-                        <FormProvider {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                        <FormProvider {...editForm}>
+                            <form onSubmit={editForm.handleSubmit(onSubmitEdit)} className="space-y-5">
                                 <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                                    <FormField control={form.control} name="first_name" render={({ field }) => (
+                                    <FormField control={editForm.control} name="first_name" render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Prénom</FormLabel>
                                             <FormControl><Input placeholder="Ahmed" {...field} /></FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )} />
-                                    <FormField control={form.control} name="last_name" render={({ field }) => (
+                                    <FormField control={editForm.control} name="last_name" render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Nom</FormLabel>
                                             <FormControl><Input placeholder="Benali" {...field} /></FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )} />
-                                    <FormField control={form.control} name="matricule" render={({ field }) => (
+                                    <FormField control={editForm.control} name="matricule" render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Matricule</FormLabel>
                                             <FormControl><Input placeholder="ENS-001" {...field} /></FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )} />
-                                    {!editTarget && (
-                                        <FormField control={form.control} name="email" render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Email</FormLabel>
-                                                <FormControl><Input type="email" placeholder="prof@ecole.ma" {...field} /></FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )} />
-                                    )}
-                                    <FormField control={form.control} name="birth_date" render={({ field }) => (
+                                    <FormField control={editForm.control} name="birth_date" render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Date de naissance</FormLabel>
                                             <FormControl><Input type="date" {...field} /></FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )} />
-                                    <FormField control={form.control} name="phone" render={({ field }) => (
+                                    <FormField control={editForm.control} name="phone" render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Téléphone</FormLabel>
                                             <FormControl><Input placeholder="06 00 00 00 00" {...field} /></FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )} />
-                                    <FormField control={form.control} name="address" render={({ field }) => (
-                                        <FormItem className={editTarget ? "" : "col-span-2"}>
+                                    <FormField control={editForm.control} name="subject_id" render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Matière</FormLabel>
+                                            <Select value={String(field.value)} onValueChange={field.onChange}>
+                                                <FormControl>
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue placeholder="Choisir une matière..." />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {subjects.map((subject) => (
+                                                        <SelectItem key={subject.id} value={String(subject.id)}>
+                                                            {subject.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )} />
+                                    <FormField control={editForm.control} name="address" render={({ field }) => (
+                                        <FormItem className="col-span-2">
                                             <FormLabel>Adresse</FormLabel>
                                             <FormControl><Input placeholder="Rue, ville..." {...field} /></FormControl>
                                             <FormMessage />
@@ -496,10 +632,10 @@ export default function TeacherList() {
                                     )} />
                                 </div>
                                 <DialogFooter>
-                                    <Button type="button" variant="outline" onClick={closeForm}>Annuler</Button>
-                                    <Button type="submit" disabled={form.formState.isSubmitting}>
-                                        {form.formState.isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
-                                        {editTarget ? "Enregistrer" : "Envoyer l'invitation"}
+                                    <Button type="button" variant="outline" onClick={closeEdit}>Annuler</Button>
+                                    <Button type="submit" disabled={editForm.formState.isSubmitting}>
+                                        {editForm.formState.isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
+                                        Enregistrer
                                     </Button>
                                 </DialogFooter>
                             </form>
