@@ -1,14 +1,19 @@
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { BookUser, Loader2, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react"
+import { BookUser, Check, ChevronsUpDown, Loader2, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react"
 
 import Can from "@/components/Can"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+    Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList,
+} from "@/components/ui/command"
 import {
     Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table"
@@ -54,6 +59,7 @@ export default function TeacherClasseList() {
     const [academicYears, setAcademicYears] = useState([])
 
     const [createFormOpen, setCreateFormOpen] = useState(false)
+    const [teacherComboOpen, setTeacherComboOpen] = useState(false)
     const [editFormOpen, setEditFormOpen] = useState(false)
     const [editTarget, setEditTarget] = useState(null)
     const [deleteTarget, setDeleteTarget] = useState(null)
@@ -390,29 +396,76 @@ export default function TeacherClasseList() {
                     <FormProvider {...form}>
                         <form onSubmit={form.handleSubmit(onSubmitCreate)} className="space-y-4">
 
-                            <FormField control={form.control} name="teacher_id" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Professeur</FormLabel>
-                                    <Select value={String(field.value)} onValueChange={field.onChange}>
-                                        <FormControl>
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="Sélectionner un professeur..." />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent className="max-h-60">
-                                            {teachers.map((teacher) => (
-                                                <SelectItem key={teacher.id} value={String(teacher.id)}>
-                                                    <span className="font-medium">{teacher.user?.first_name} {teacher.user?.last_name}</span>
-                                                    {teacher.subject?.name && (
-                                                        <span className="ml-2 text-xs text-muted-foreground">{teacher.subject.name}</span>
-                                                    )}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
+                            <FormField control={form.control} name="teacher_id" render={({ field }) => {
+                                const selected = teachers.find((teacher) => String(teacher.id) === String(field.value))
+                                return (
+                                    <FormItem>
+                                        <FormLabel>Professeur</FormLabel>
+                                        <Popover open={teacherComboOpen} onOpenChange={setTeacherComboOpen}>
+                                            <PopoverTrigger asChild>
+                                                <FormControl>
+                                                    <Button
+                                                        variant="outline"
+                                                        role="combobox"
+                                                        aria-expanded={teacherComboOpen}
+                                                        className="w-full justify-between font-normal"
+                                                    >
+                                                        {selected ? (
+                                                            <span className="flex items-center gap-2">
+                                                                <Avatar className="size-6">
+                                                                    <AvatarImage src={selected.user?.avatar} />
+                                                                    <AvatarFallback className="text-xs">
+                                                                        {selected.user?.first_name?.[0]}{selected.user?.last_name?.[0]}
+                                                                    </AvatarFallback>
+                                                                </Avatar>
+                                                                <span>{selected.user?.first_name} {selected.user?.last_name}</span>
+                                                            </span>
+                                                        ) : (
+                                                            "Sélectionner un professeur..."
+                                                        )}
+                                                        <ChevronsUpDown className="opacity-50" />
+                                                    </Button>
+                                                </FormControl>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                                <Command>
+                                                    <CommandInput placeholder="Rechercher..." />
+                                                    <CommandList>
+                                                        <CommandEmpty>Aucun professeur trouvé.</CommandEmpty>
+                                                        <CommandGroup>
+                                                            {teachers.map((teacher) => (
+                                                                <CommandItem
+                                                                    key={teacher.id}
+                                                                    value={`${teacher.user?.first_name} ${teacher.user?.last_name}`}
+                                                                    onSelect={() => {
+                                                                        field.onChange(String(teacher.id))
+                                                                        setTeacherComboOpen(false)
+                                                                    }}
+                                                                >
+                                                                    <Avatar className="size-7 mr-2">
+                                                                        <AvatarImage src={teacher.user?.avatar} />
+                                                                        <AvatarFallback className="text-xs">
+                                                                            {teacher.user?.first_name?.[0]}{teacher.user?.last_name?.[0]}
+                                                                        </AvatarFallback>
+                                                                    </Avatar>
+                                                                    <div className="flex flex-col">
+                                                                        <span className="font-medium">{teacher.user?.first_name} {teacher.user?.last_name}</span>
+                                                                        {teacher.subject?.name && (
+                                                                            <span className="text-xs text-muted-foreground">{teacher.subject.name}</span>
+                                                                        )}
+                                                                    </div>
+                                                                    <Check className={`ml-auto size-4 ${String(field.value) === String(teacher.id) ? "opacity-100" : "opacity-0"}`} />
+                                                                </CommandItem>
+                                                            ))}
+                                                        </CommandGroup>
+                                                    </CommandList>
+                                                </Command>
+                                            </PopoverContent>
+                                        </Popover>
+                                        <FormMessage />
+                                    </FormItem>
+                                )
+                            }} />
 
                             <FormField control={form.control} name="class_id" render={({ field }) => (
                                 <FormItem>
@@ -477,29 +530,25 @@ export default function TeacherClasseList() {
                     <FormProvider {...form}>
                         <form onSubmit={form.handleSubmit(onSubmitEdit)} className="space-y-4">
 
-                            <FormField control={form.control} name="teacher_id" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Professeur</FormLabel>
-                                    <Select value={String(field.value)} onValueChange={field.onChange}>
-                                        <FormControl>
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="Sélectionner un professeur..." />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent className="max-h-60">
-                                            {teachers.map((teacher) => (
-                                                <SelectItem key={teacher.id} value={String(teacher.id)}>
-                                                    <span className="font-medium">{teacher.user?.first_name} {teacher.user?.last_name}</span>
-                                                    {teacher.subject?.name && (
-                                                        <span className="ml-2 text-xs text-muted-foreground">{teacher.subject.name}</span>
-                                                    )}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
+                            {editTarget && (
+                                <div className="rounded-md border px-3 py-2 text-sm">
+                                    <p className="text-xs text-muted-foreground mb-1">Professeur</p>
+                                    <div className="flex items-center gap-2">
+                                        <Avatar className="size-7">
+                                            <AvatarImage src={editTarget.teacher?.user?.avatar} />
+                                            <AvatarFallback className="text-xs">
+                                                {editTarget.teacher?.first_name?.[0]}{editTarget.teacher?.last_name?.[0]}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div>
+                                            <p className="font-medium">{editTarget.teacher?.first_name} {editTarget.teacher?.last_name}</p>
+                                            {editTarget.teacher?.subject && (
+                                                <p className="text-xs text-muted-foreground">{editTarget.teacher.subject}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             <FormField control={form.control} name="class_id" render={({ field }) => (
                                 <FormItem>
