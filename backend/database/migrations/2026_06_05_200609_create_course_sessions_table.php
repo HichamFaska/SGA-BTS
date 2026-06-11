@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->time('start_time');
             $table->time('end_time');
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
+            $table->text('comment')->nullable();
             $table->timestamps();
 
             $table->unique(['class_id', 'teacher_id', 'session_date', 'start_time', 'end_time'], 'unique_session');
