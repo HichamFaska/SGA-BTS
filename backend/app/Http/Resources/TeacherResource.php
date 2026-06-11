@@ -13,6 +13,7 @@ class TeacherResource extends JsonResource {
             'matricule' => $this->matricule,
             'birth_date' => $this->birth_date?->toDateString(),
             'subject_id' => $this->subject_id,
+            'subject' => $this->whenLoaded('subject', fn () => $this->subject?->name),
             'user' => $this->whenLoaded('user', fn () => [
                 'email' => $this->user->email,
                 'status' => $this->user->status?->value,

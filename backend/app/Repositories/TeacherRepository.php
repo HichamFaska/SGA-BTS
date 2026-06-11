@@ -8,7 +8,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class TeacherRepository {
 
     public function all(?string $search = null, ?string $status = null): LengthAwarePaginator {
-        return Teacher::with('user')
+        return Teacher::with('user', 'subject')
             ->search($search)
             ->status($status)
             ->latest()
@@ -16,13 +16,13 @@ class TeacherRepository {
     }
 
     public function find(int $id): ?Teacher {
-        return Teacher::with('user')->find($id);
+        return Teacher::with('user', 'subject')->find($id);
     }
 
     public function update(Teacher $teacher, array $data): Teacher {
         $teacher->update($data);
         $teacher->user->update($data);
-        return $teacher->load('user');
+        return $teacher->load('user', 'subject');
     }
 
     public function delete(Teacher $teacher): bool {

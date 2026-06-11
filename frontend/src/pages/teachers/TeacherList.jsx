@@ -299,6 +299,7 @@ export default function TeacherList() {
                             <TableHead>Matricule</TableHead>
                             <TableHead>Email</TableHead>
                             <TableHead>Téléphone</TableHead>
+                            <TableHead>Matière</TableHead>
                             <TableHead>Statut</TableHead>
                             <TableHead>Invitation</TableHead>
                             <TableHead className="w-10" />
@@ -307,13 +308,13 @@ export default function TeacherList() {
                     <TableBody>
                         {loading ? (
                             <TableRow>
-                                <TableCell colSpan={7} className="py-12 text-center">
+                                <TableCell colSpan={8} className="py-12 text-center">
                                     <Loader2 className="mx-auto size-6 animate-spin text-muted-foreground" />
                                 </TableCell>
                             </TableRow>
                         ) : teachers.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={7} className="py-16 text-center">
+                                <TableCell colSpan={8} className="py-16 text-center">
                                     <div className="flex flex-col items-center gap-3">
                                         <GraduationCap className="size-10 text-muted-foreground" />
                                         <p className="text-sm text-muted-foreground">Aucun professeur pour l&apos;instant.</p>
@@ -335,6 +336,7 @@ export default function TeacherList() {
                                     <TableCell className="text-muted-foreground">{teacher.matricule}</TableCell>
                                     <TableCell className="text-muted-foreground">{teacher.user.email}</TableCell>
                                     <TableCell className="text-muted-foreground">{teacher.user.phone || "—"}</TableCell>
+                                    <TableCell className="text-muted-foreground">{teacher.subject || "—"}</TableCell>
                                     <TableCell><Badge variant={teacher.user.status === "active" ? "success" : "secondary"}>{teacher.user.status === "active" ? "Actif" : "Inactif"}</Badge></TableCell>
                                     <TableCell><Badge variant={teacher.user.email_verified_at ? "success" : "warning"}>{teacher.user.email_verified_at ? "Acceptée" : "En attente"}</Badge></TableCell>
                                     <TableCell>
