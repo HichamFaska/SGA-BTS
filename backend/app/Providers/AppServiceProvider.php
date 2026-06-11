@@ -2,14 +2,18 @@
 
 namespace App\Providers;
 
+use App\Models\AcademicYear;
 use App\Models\Classe;
+use App\Models\Enrollment;
 use App\Models\Filiere;
 use App\Models\Invitation;
 use App\Models\Subject;
 use App\Models\Teacher;
 use App\Models\User;
 use App\Models\Student;
+use App\Policies\AcademicYearPolicy;
 use App\Policies\ClassePolicy;
+use App\Policies\EnrollmentPolicy;
 use App\Policies\FilierePolicy;
 use App\Policies\InvitationPolicy;
 use App\Policies\SubjectPolicy;
@@ -33,5 +37,7 @@ class AppServiceProvider extends ServiceProvider {
         Gate::policy(Subject::class, SubjectPolicy::class);
         Gate::policy(Filiere::class, FilierePolicy::class);
         Gate::policy(Classe::class, ClassePolicy::class);
+        Gate::policy(AcademicYear::class, AcademicYearPolicy::class);
+        Gate::policy(Enrollment::class, EnrollmentPolicy::class);
     }
 }
