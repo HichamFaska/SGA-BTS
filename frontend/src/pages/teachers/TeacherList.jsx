@@ -338,7 +338,7 @@ export default function TeacherList() {
                                     <TableCell className="text-muted-foreground">{teacher.user.phone || "—"}</TableCell>
                                     <TableCell className="text-muted-foreground">{teacher.subject || "—"}</TableCell>
                                     <TableCell><Badge variant={teacher.user.status === "active" ? "success" : "secondary"}>{teacher.user.status === "active" ? "Actif" : "Inactif"}</Badge></TableCell>
-                                    <TableCell><Badge variant={teacher.user.email_verified_at ? "success" : "warning"}>{teacher.user.email_verified_at ? "Acceptée" : "En attente"}</Badge></TableCell>
+                                    <TableCell><Badge variant={teacher.user.invitation?.accepted_at ? "success" : "warning"}>{teacher.user.invitation?.accepted_at ? "Acceptée" : "En attente"}</Badge></TableCell>
                                     <TableCell>
                                         <div className="flex items-center gap-1">
                                             <Button variant="ghost" size="icon" className="size-8" onClick={() => setShowTarget(teacher)}>
@@ -439,8 +439,8 @@ export default function TeacherList() {
                                 <DialogTitle>{showTarget.user.first_name} {showTarget.user.last_name}</DialogTitle>
                                 <div className="flex items-center gap-2 mt-0.5">
                                     <p className="text-sm text-muted-foreground">{showTarget.matricule}</p>
-                                    <Badge variant={showTarget.user.email_verified_at ? "success" : "warning"} className="text-xs">
-                                        {showTarget.user.email_verified_at ? "Acceptée" : "En attente"}
+                                    <Badge variant={showTarget.user.invitation?.accepted_at ? "success" : "warning"} className="text-xs">
+                                        {showTarget.user.invitation?.accepted_at ? "Acceptée" : "En attente"}
                                     </Badge>
                                 </div>
                             </div>

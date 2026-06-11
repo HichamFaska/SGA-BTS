@@ -46,6 +46,10 @@ class User extends Authenticatable {
         return $this->hasMany(Invitation::class);
     }
 
+    public function latestInvitation(): HasOne {
+        return $this->hasOne(Invitation::class)->latestOfMany();
+    }
+
     public function sentInvitations(): HasMany {
         return $this->hasMany(Invitation::class, 'invited_by');
     }

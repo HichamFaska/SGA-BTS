@@ -23,7 +23,9 @@ class TeacherResource extends JsonResource {
                 'phone' => $this->user->phone,
                 'address' => $this->user->address,
                 'avatar' => $this->user->avatar ? Storage::disk('public')->url($this->user->avatar) : null,
-                'email_verified_at' => $this->user->email_verified_at?->toDateTimeString(),
+                'invitation' => $this->user->relationLoaded('latestInvitation') ? [
+                    'accepted_at' => $this->user->latestInvitation?->accepted_at?->toDateTimeString(),
+                ] : null,
             ]),
             'created_at' => $this->created_at?->toDateTimeString(),
             'updated_at' => $this->updated_at?->toDateTimeString(),
