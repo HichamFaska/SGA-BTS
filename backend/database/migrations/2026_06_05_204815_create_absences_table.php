@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->foreignId('session_id')->constrained('course_sessions')->cascadeOnDelete();
             $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
             $table->unsignedInteger('duration')->default(0); // en minutes
-            $table->foreignId('recorded_by')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('recorded_by')->nullable()->constrained('users')->nullOnDelete();
             $table->enum('status', ['non justifiée', 'justifiée'])->default('non justifiée');
             $table->timestamps();
 
