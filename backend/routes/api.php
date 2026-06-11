@@ -33,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('account')->name('account.')->group(function () {
         Route::put('/email', [AccountController::class, 'updateEmail'])->name('email');
+        Route::post('/email/verify', [AccountController::class, 'verifyEmail'])->name('email.verify');
         Route::put('/password', [AccountController::class, 'updatePassword'])->name('password');
     });
 

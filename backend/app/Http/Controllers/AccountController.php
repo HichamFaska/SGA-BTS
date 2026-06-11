@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateProfileEmailRequest;
 use App\Http\Requests\UpdateProfilePasswordRequest;
+use App\Http\Requests\VerifyEmailRequest;
 use App\Http\Resources\UserResource;
+use App\Services\EmailVerificationService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
@@ -12,6 +14,8 @@ use Illuminate\Support\Facades\Hash;
 class AccountController extends Controller {
 
     use ApiResponse;
+
+    public function __construct(private EmailVerificationService $emailVerificationService) {}
 
     public function updateEmail(UpdateProfileEmailRequest $request): JsonResponse {
         $user = $request->user();
@@ -22,13 +26,22 @@ class AccountController extends Controller {
             ]);
         }
 
-        $user->update([
-            'email' => $request->email,
-            'email_verified_at' => null,
-        ]);
+        $this->emailVerificationService->send($user, $request->email);
+
+        return $this->successResponse([], 'Un code de vérification a été envoyé à votre nouvel email.');
+    }
+
+    public function verifyEmail(VerifyEmailRequest $request): JsonResponse {
+        $user = $request->user();
+
+        if (!$this->emailVerificationService->verify($user, $request->code)) {
+            return $this->errorResponse('Code invalide ou expiré.', 422, [
+                'code' => ['Code invalide ou expiré.'],
+            ]);
+        }
 
         return $this->successResponse([
-            'user' => new UserResource($user->load('teacher')),
+            'user' => new UserResource($user->fresh()->load('teacher')),
         ], 'Adresse email mise à jour avec succès.');
     }
 
