@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreTeacherClasseRequest extends FormRequest {
 
@@ -15,13 +14,9 @@ class StoreTeacherClasseRequest extends FormRequest {
         return [
             'teacher_id' => ['required', 'integer', 'exists:teachers,id'],
             'class_id' => ['required', 'integer', 'exists:classes,id'],
-            'academic_year_id' => [
-                'required', 'integer', 'exists:academic_years,id',
-                Rule::unique('teacher_classes')->where(fn($q) =>
-                    $q->where('teacher_id', $this->teacher_id)
-                      ->where('class_id', $this->class_id)
-                ),
-            ],
+            'academic_year_id' => ['required', 'integer', 'exists:academic_years,id'],
+            'start_date' => ['nullable', 'date'],
+            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
         ];
     }
 
@@ -33,7 +28,7 @@ class StoreTeacherClasseRequest extends FormRequest {
             'class_id.exists' => "La classe sélectionnée n'existe pas.",
             'academic_year_id.required' => "L'année académique est obligatoire.",
             'academic_year_id.exists' => "L'année académique sélectionnée n'existe pas.",
-            'academic_year_id.unique' => 'Ce professeur est déjà affecté à cette classe pour cette année.',
+            'end_date.after_or_equal' => "La date de fin doit être égale ou postérieure à la date de début.",
         ];
     }
 }

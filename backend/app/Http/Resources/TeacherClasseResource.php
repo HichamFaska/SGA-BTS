@@ -25,6 +25,8 @@ class TeacherClasseResource extends JsonResource {
                 'name' => $this->academicYear->name,
                 'is_current' => $this->academicYear->is_current,
             ]),
+            'start_date' => $this->start_date?->toDateString(),
+            'end_date' => $this->end_date?->toDateString(),
         ];
     }
 }

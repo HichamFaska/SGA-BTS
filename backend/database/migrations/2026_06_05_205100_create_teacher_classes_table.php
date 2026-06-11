@@ -12,9 +12,10 @@ return new class extends Migration {
             $table->foreignId('teacher_id')->constrained('teachers')->cascadeOnDelete();
             $table->foreignId('class_id')->constrained('classes')->cascadeOnDelete();
             $table->foreignId('academic_year_id')->constrained('academic_years')->cascadeOnDelete();
+            $table->date('start_date');
+            $table->date('end_date');
             $table->timestamps();
 
-            $table->unique(['teacher_id', 'class_id', 'academic_year_id'], 'unique_teacher_class');
             $table->index(['class_id', 'academic_year_id']);
         });
     }
