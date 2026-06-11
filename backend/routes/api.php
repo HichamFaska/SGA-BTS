@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\EnrollmentController;
+use App\Http\Controllers\TeacherClasseController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\FiliereController;
@@ -111,6 +112,16 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::put('/{academic_year}', [AcademicYearController::class, 'update'])->name('update');
                 Route::delete('/{academic_year}', [AcademicYearController::class, 'destroy'])->name('destroy');
             });
+        });
+
+    Route::prefix('teacher-classes')
+        ->name('teacher-classes.')
+        ->middleware('role:admin')
+        ->group(function () {
+            Route::get('/', [TeacherClasseController::class, 'index'])->name('index');
+            Route::post('/', [TeacherClasseController::class, 'store'])->name('store');
+            Route::put('/{teacherClasse}', [TeacherClasseController::class, 'update'])->name('update');
+            Route::delete('/{teacherClasse}', [TeacherClasseController::class, 'destroy'])->name('destroy');
         });
 
     Route::prefix('enrollments')
