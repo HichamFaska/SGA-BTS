@@ -67,7 +67,7 @@ const router = createBrowserRouter([
             { path: "/enrollments/bulk", element: <PermissionGuard permission="enrollments.bulkCreate"><BulkEnrollment /></PermissionGuard> },
             { path: "/teacher-classes", element: <PermissionGuard permission="teacher_classes.viewAny"><TeacherClasseList /></PermissionGuard> },
             { path: "/absences", element: <Absences /> },
-            { path: "/settings", element: <RoleGuard role="admin"><AppSettings /></RoleGuard> },
+            { path: "/settings", element: <AppSettings /> },
         ],
     },
     {

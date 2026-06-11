@@ -1,6 +1,6 @@
-import { LogOut, Loader2, Menu, Mail, Phone } from "lucide-react"
+import { LogOut, Loader2, Menu, Mail, Phone, Settings } from "lucide-react"
 import { useState } from "react"
-import { Outlet, useNavigate } from "react-router-dom"
+import { Outlet, useNavigate, NavLink } from "react-router-dom"
 import { Button } from "../ui/button"
 import {
     Dialog,
@@ -14,6 +14,7 @@ import {
 import {
     DropdownMenu,
     DropdownMenuContent,
+    DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -65,7 +66,7 @@ export function AppLayout() {
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <button className="flex items-center gap-2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                                    <Avatar className="size-9 cursor-pointer ring-2 ring-border hover:ring-primary transition-all">
+                                    <Avatar key={user.avatar} className="size-9 cursor-pointer ring-2 ring-border hover:ring-primary transition-all">
                                         <AvatarImage src={user.avatar} alt={`${user.first_name} ${user.last_name}`} />
                                         <AvatarFallback className="text-xs">{user.first_name[0]}{user.last_name[0]}</AvatarFallback>
                                     </Avatar>
@@ -73,7 +74,7 @@ export function AppLayout() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-64 p-0">
                                 <div className="flex items-center gap-3 p-4">
-                                    <Avatar className="size-12 shrink-0">
+                                    <Avatar key={user.avatar} className="size-12 shrink-0">
                                         <AvatarImage src={user.avatar} alt={`${user.first_name} ${user.last_name}`} />
                                         <AvatarFallback>{user.first_name[0]}{user.last_name[0]}</AvatarFallback>
                                     </Avatar>
@@ -98,7 +99,16 @@ export function AppLayout() {
                                     )}
                                 </div>
                                 <DropdownMenuSeparator />
-                                <div className="p-2">
+                                <div className="p-2 space-y-1">
+                                    <DropdownMenuItem asChild>
+                                        <NavLink
+                                            to="/settings"
+                                            className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium cursor-pointer"
+                                        >
+                                            <Settings className="size-4" />
+                                            Paramètres
+                                        </NavLink>
+                                    </DropdownMenuItem>
                                     <button
                                         onClick={() => setLogoutOpen(true)}
                                         className="w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"

@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\TeacherClasseController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\FiliereController;
 use App\Http\Controllers\StudentImportController;
@@ -22,6 +24,17 @@ Route::get('me', [AuthController::class, 'me'])->name('auth.me');
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');
+
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::put('/', [ProfileController::class, 'update'])->name('update');
+        Route::post('/avatar', [ProfileController::class, 'updateAvatar'])->name('avatar');
+        Route::delete('/avatar', [ProfileController::class, 'deleteAvatar'])->name('avatar.delete');
+    });
+
+    Route::prefix('account')->name('account.')->group(function () {
+        Route::put('/email', [AccountController::class, 'updateEmail'])->name('email');
+        Route::put('/password', [AccountController::class, 'updatePassword'])->name('password');
+    });
 
     Route::prefix('teachers')
         ->name('teachers.')

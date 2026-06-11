@@ -49,7 +49,9 @@ export function AuthProvider({ children }) {
         isAuthenticated: Boolean(user),
         login,
         logout,
-    }), [user, loading, login, logout])
+        refreshUser,
+        setUser,
+    }), [user, loading, login, logout, refreshUser, setUser])
 
     return (
         <AuthContext.Provider value={value}>
