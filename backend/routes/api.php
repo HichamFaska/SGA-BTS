@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AcademicYearController;
+use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\FiliereController;
@@ -110,6 +111,19 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::put('/{academic_year}', [AcademicYearController::class, 'update'])->name('update');
                 Route::delete('/{academic_year}', [AcademicYearController::class, 'destroy'])->name('destroy');
             });
+        });
+
+    Route::prefix('enrollments')
+        ->name('enrollments.')
+        ->middleware('role:admin')
+        ->group(function () {
+            Route::get('/', [EnrollmentController::class, 'index'])->name('index');
+            Route::post('/', [EnrollmentController::class, 'store'])->name('store');
+            Route::get('/available-students', [EnrollmentController::class, 'availableStudents'])->name('available-students');
+            Route::post('/bulk', [EnrollmentController::class, 'bulkStore'])->name('bulk');
+            Route::get('/{enrollment}', [EnrollmentController::class, 'show'])->name('show');
+            Route::put('/{enrollment}', [EnrollmentController::class, 'update'])->name('update');
+            Route::delete('/{enrollment}', [EnrollmentController::class, 'destroy'])->name('destroy');
         });
 
     Route::prefix('filieres')
