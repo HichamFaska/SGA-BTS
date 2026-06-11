@@ -16,6 +16,7 @@ import TeacherList from "@/pages/teachers/TeacherList"
 import AcademicYearList from "@/pages/academic-years/AcademicYearList"
 import EnrollmentList from "@/pages/enrollments/EnrollmentList"
 import BulkEnrollment from "@/pages/enrollments/BulkEnrollment"
+import TeacherClasseList from "@/pages/teacher-classes/TeacherClasseList"
 import Absences from "@/pages/Absences"
 import AppSettings from "@/pages/AppSettings"
 import NotFound from "@/pages/NotFound"
@@ -64,6 +65,7 @@ const router = createBrowserRouter([
             { path: "/academic-years", element: <PermissionGuard permission="academic_years.viewAny"><AcademicYearList /></PermissionGuard> },
             { path: "/enrollments", element: <PermissionGuard permission="enrollments.viewAny"><EnrollmentList /></PermissionGuard> },
             { path: "/enrollments/bulk", element: <PermissionGuard permission="enrollments.bulkCreate"><BulkEnrollment /></PermissionGuard> },
+            { path: "/teacher-classes", element: <PermissionGuard permission="teacher_classes.viewAny"><TeacherClasseList /></PermissionGuard> },
             { path: "/absences", element: <Absences /> },
             { path: "/settings", element: <RoleGuard role="admin"><AppSettings /></RoleGuard> },
         ],
