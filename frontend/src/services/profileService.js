@@ -25,6 +25,11 @@ export const profileService = {
         return response.data
     },
 
+    async verifyEmail(payload) {
+        const response = await api.post("/account/email/verify", payload)
+        return response.data
+    },
+
     async updatePassword(payload) {
         const response = await api.put("/account/password", payload)
         return response.data

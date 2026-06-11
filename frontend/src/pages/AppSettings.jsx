@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { useToast } from "@/components/ui/use-toast"
 import { handleApiErrors } from "@/lib/api-errors"
 import profileService from "@/services/profileService"
-import { profileSchema, emailSchema, passwordSchema } from "@/schemas/settingsSchema"
+import { profileSchema, emailSchema, passwordSchema, otpSchema } from "@/schemas/settingsSchema"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -18,6 +18,13 @@ import {
     FormProvider, FormField, FormItem,
     FormLabel, FormControl, FormMessage,
 } from "@/components/ui/form"
+import {
+    Dialog, DialogContent, DialogDescription,
+    DialogHeader, DialogTitle,
+} from "@/components/ui/dialog"
+import {
+    InputOTP, InputOTPGroup, InputOTPSlot,
+} from "@/components/ui/input-otp"
 
 export default function AppSettings() {
     const { user, setUser } = useAuth()
@@ -25,6 +32,7 @@ export default function AppSettings() {
     const avatarInputRef = useRef(null)
     const [uploadingAvatar, setUploadingAvatar] = useState(false)
     const [deletingAvatar, setDeletingAvatar] = useState(false)
+    const [otpOpen, setOtpOpen] = useState(false)
 
     const profileForm = useForm({
         resolver: zodResolver(profileSchema),
@@ -44,6 +52,11 @@ export default function AppSettings() {
     const passwordForm = useForm({
         resolver: zodResolver(passwordSchema),
         defaultValues: { current_password: "", password: "", password_confirmation: "" },
+    })
+
+    const otpForm = useForm({
+        resolver: zodResolver(otpSchema),
+        defaultValues: { code: "" },
     })
 
     const handleAvatarChange = async (e) => {
@@ -92,11 +105,25 @@ export default function AppSettings() {
     const onSubmitEmail = async (values) => {
         try {
             const response = await profileService.updateEmail(values)
-            setUser(response.data.user)
-            emailForm.reset({ email: response.data.user.email, current_password: "" })
             toastSuccess(response.message)
+            setOtpOpen(true)
         } catch (err) {
             if (!handleApiErrors(err, emailForm.setError)) {
+                toastError(err?.message)
+            }
+        }
+    }
+
+    const onSubmitOtp = async (values) => {
+        try {
+            const response = await profileService.verifyEmail(values)
+            setUser(response.data.user)
+            toastSuccess(response.message)
+            setOtpOpen(false)
+            otpForm.reset()
+            emailForm.reset({ email: response.data.user.email, current_password: "" })
+        } catch (err) {
+            if (!handleApiErrors(err, otpForm.setError)) {
                 toastError(err?.message)
             }
         }
@@ -320,6 +347,42 @@ export default function AppSettings() {
 
                 </TabsContent>
             </Tabs>
+
+            <Dialog open={otpOpen} onOpenChange={(v) => { setOtpOpen(v); if (!v) otpForm.reset() }}>
+                <DialogContent className="sm:max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle>Vérification de l&apos;email</DialogTitle>
+                        <DialogDescription>
+                            Un code à 6 chiffres a été envoyé à votre nouvel email. Il expire dans 10 minutes.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <FormProvider {...otpForm}>
+                        <form onSubmit={otpForm.handleSubmit(onSubmitOtp)} className="space-y-6">
+                            <FormField control={otpForm.control} name="code" render={({ field }) => (
+                                <FormItem className="flex flex-col items-center">
+                                    <FormControl>
+                                        <InputOTP maxLength={6} {...field}>
+                                            <InputOTPGroup>
+                                                <InputOTPSlot index={0} />
+                                                <InputOTPSlot index={1} />
+                                                <InputOTPSlot index={2} />
+                                                <InputOTPSlot index={3} />
+                                                <InputOTPSlot index={4} />
+                                                <InputOTPSlot index={5} />
+                                            </InputOTPGroup>
+                                        </InputOTP>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <Button type="submit" className="w-full" disabled={otpForm.formState.isSubmitting}>
+                                {otpForm.formState.isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
+                                Confirmer
+                            </Button>
+                        </form>
+                    </FormProvider>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

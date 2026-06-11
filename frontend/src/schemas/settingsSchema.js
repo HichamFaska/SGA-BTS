@@ -12,6 +12,10 @@ export const emailSchema = z.object({
     current_password: z.string().min(1, "Le mot de passe actuel est obligatoire."),
 })
 
+export const otpSchema = z.object({
+    code: z.string().length(6, "Le code doit contenir 6 chiffres."),
+})
+
 export const passwordSchema = z.object({
     current_password: z.string().min(1, "Le mot de passe actuel est obligatoire."),
     password: z.string().min(8, "Le nouveau mot de passe doit contenir au moins 8 caractères."),
