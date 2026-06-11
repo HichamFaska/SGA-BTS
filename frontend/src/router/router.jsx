@@ -12,6 +12,8 @@ import StudentList from "@/pages/students/StudentList"
 import SubjectList from "@/pages/subjects/SubjectList"
 import TeacherList from "@/pages/teachers/TeacherList"
 import AcademicYearList from "@/pages/academic-years/AcademicYearList"
+import EnrollmentList from "@/pages/enrollments/EnrollmentList"
+import BulkEnrollment from "@/pages/enrollments/BulkEnrollment"
 import Absences from "@/pages/Absences"
 import AppSettings from "@/pages/AppSettings"
 import NotFound from "@/pages/NotFound"
@@ -57,6 +59,8 @@ const router = createBrowserRouter([
             { path: "/filieres", element: <FiliereList /> },
             { path: "/classes", element: <ClasseList /> },
             { path: "/academic-years", element: <AcademicYearList /> },
+            { path: "/enrollments", element: <EnrollmentList /> },
+            { path: "/enrollments/bulk", element: <BulkEnrollment /> },
             { path: "/absences", element: <Absences /> },
             { path: "/settings", element: <AppSettings /> },
         ],
