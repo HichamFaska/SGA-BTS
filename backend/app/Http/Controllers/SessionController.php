@@ -39,7 +39,7 @@ class SessionController extends Controller {
     public function show(Session $session): JsonResponse {
         $this->authorize('view', $session);
 
-        $session->load(['classe', 'teacher.user', 'absences.student']);
+        $session->load(['classe', 'teacher.user', 'absences.student', 'absences.justification']);
 
         return $this->successResponse([
             'session' => new SessionResource($session),
