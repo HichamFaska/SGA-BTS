@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { CalendarX, Loader2, RefreshCw, Search, Trash2, X } from "lucide-react"
 
 import Can from "@/components/Can"
+import JustifyDialog from "@/components/JustifyDialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -32,7 +33,6 @@ export default function AdminAbsencesPage() {
     const [filters, setFilters] = useState(emptyFilters)
 
     const [justifyTarget, setJustifyTarget] = useState(null)
-    const [justifying, setJustifying] = useState(false)
     const [deleteTarget, setDeleteTarget] = useState(null)
     const [deleting, setDeleting] = useState(false)
 
@@ -66,22 +66,6 @@ export default function AdminAbsencesPage() {
         setFilters(emptyFilters)
         setPage(1)
         fetchAbsences(1, emptyFilters)
-    }
-
-    const handleJustify = async () => {
-        if (!justifyTarget) return
-        setJustifying(true)
-        try {
-            const newStatus = justifyTarget.status === "justifiée" ? "non justifiée" : "justifiée"
-            const response = await absenceService.update(justifyTarget.id, { status: newStatus })
-            toastSuccess(response.message)
-            setJustifyTarget(null)
-            fetchAbsences()
-        } catch (err) {
-            toastError(err?.message)
-        } finally {
-            setJustifying(false)
-        }
     }
 
     const handleDelete = async () => {
@@ -210,14 +194,14 @@ export default function AdminAbsencesPage() {
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex items-center gap-1">
-                                            <Can permission="absences.update">
+                                            <Can permission="justifications.manage">
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
                                                     className="text-xs h-7"
                                                     onClick={() => setJustifyTarget(absence)}
                                                 >
-                                                    {absence.status === "justifiée" ? "Annuler" : "Justifier"}
+                                                    {absence.justification ? "Voir" : "Justifier"}
                                                 </Button>
                                             </Can>
                                             <Can permission="absences.delete">
@@ -274,35 +258,14 @@ export default function AdminAbsencesPage() {
                 </Pagination>
             )}
 
-            {/* Justifier / Annuler justification */}
-            <Dialog open={!!justifyTarget} onOpenChange={(open) => !open && setJustifyTarget(null)}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>
-                            {justifyTarget?.status === "justifiée" ? "Annuler la justification" : "Justifier l'absence"}
-                        </DialogTitle>
-                        <DialogDescription>
-                            {justifyTarget?.status === "justifiée"
-                                ? "Marquer l'absence de "
-                                : "Justifier l'absence de "}
-                            <span className="font-medium text-foreground">
-                                {justifyTarget?.student?.first_name} {justifyTarget?.student?.last_name}
-                            </span>{" "}
-                            comme{" "}
-                            <span className="font-medium text-foreground">
-                                {justifyTarget?.status === "justifiée" ? "non justifiée" : "justifiée"}
-                            </span> ?
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setJustifyTarget(null)}>Annuler</Button>
-                        <Button onClick={handleJustify} disabled={justifying}>
-                            {justifying && <Loader2 className="mr-2 size-4 animate-spin" />}
-                            Confirmer
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            {justifyTarget && (
+                <JustifyDialog
+                    absence={justifyTarget}
+                    open={!!justifyTarget}
+                    onOpenChange={(isOpen) => { if (!isOpen) setJustifyTarget(null) }}
+                    onSuccess={() => fetchAbsences()}
+                />
+            )}
 
             {/* Supprimer */}
             <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
