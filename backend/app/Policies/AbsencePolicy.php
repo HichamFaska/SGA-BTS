@@ -13,7 +13,7 @@ class AbsencePolicy {
 
     public function update(User $user, Absence $absence): bool {
         return $user->isAdmin()
-            || ($user->isTeacher() && $absence->session->teacher->user_id === $user->id);
+            || ($user->isTeacher() && $absence->recorded_by === $user->id);
     }
 
     public function updateStatus(User $user): bool {
@@ -22,6 +22,6 @@ class AbsencePolicy {
 
     public function delete(User $user, Absence $absence): bool {
         return $user->isAdmin()
-            || ($user->isTeacher() && $absence->session->teacher->user_id === $user->id);
+            || ($user->isTeacher() && $absence->recorded_by === $user->id);
     }
 }
