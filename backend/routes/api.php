@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\AbsenceController;
+use App\Http\Controllers\JustificationController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\TeacherClasseController;
 use App\Http\Controllers\AuthController;
@@ -200,6 +201,15 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::middleware('role:teacher')->group(function () {
                 Route::post('/sessions/{session}/record', [AbsenceController::class, 'recordAbsences'])->name('record');
             });
+        });
+
+    Route::prefix('justifications')
+        ->name('justifications.')
+        ->middleware('role:admin')
+        ->group(function () {
+            Route::post('/absences/{absence}', [JustificationController::class, 'store'])->name('store');
+            Route::post('/{justification}', [JustificationController::class, 'update'])->name('update');
+            Route::delete('/{justification}', [JustificationController::class, 'destroy'])->name('destroy');
         });
 
 });

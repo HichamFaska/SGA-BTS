@@ -7,6 +7,7 @@ use App\Models\Classe;
 use App\Models\Enrollment;
 use App\Models\Filiere;
 use App\Models\Absence;
+use App\Models\Justification;
 use App\Models\Session;
 use App\Models\TeacherClasse;
 use App\Models\Invitation;
@@ -19,6 +20,7 @@ use App\Policies\ClassePolicy;
 use App\Policies\EnrollmentPolicy;
 use App\Policies\FilierePolicy;
 use App\Policies\AbsencePolicy;
+use App\Policies\JustificationPolicy;
 use App\Policies\SessionPolicy;
 use App\Policies\TeacherClassePolicy;
 use App\Policies\InvitationPolicy;
@@ -48,5 +50,6 @@ class AppServiceProvider extends ServiceProvider {
         Gate::policy(TeacherClasse::class, TeacherClassePolicy::class);
         Gate::policy(Session::class, SessionPolicy::class);
         Gate::policy(Absence::class, AbsencePolicy::class);
+        Gate::policy(Justification::class, JustificationPolicy::class);
     }
 }
