@@ -23,10 +23,12 @@ class Session extends Model {
         'end_time',
         'created_by',
         'comment',
+        'called_at',
     ];
 
     protected $casts = [
         'session_date' => 'date',
+        'called_at' => 'datetime',
     ];
 
     public function classe(): BelongsTo {
