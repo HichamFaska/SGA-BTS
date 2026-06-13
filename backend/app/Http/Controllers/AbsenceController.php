@@ -21,15 +21,15 @@ class AbsenceController extends Controller {
 
         $user = $request->user();
 
-        $absences = Absence::with(['student', 'session.classe', 'session.teacher.user'])
+        $absences = Absence::with(['student', 'session.classe', 'session.teacher.user', 'justification'])
             ->latest()
-            ->when($user->isTeacher(), fn ($q) => $q->whereHas('session', fn ($s) => $s->where('teacher_id', $user->teacher->id)))
-            ->when($request->filled('student_id'), fn ($q) => $q->where('student_id', $request->integer('student_id')))
-            ->when($request->filled('class_id'), fn ($q) => $q->whereHas('session', fn ($s) => $s->where('class_id', $request->integer('class_id'))))
-            ->when($request->filled('teacher_id') && $user->isAdmin(), fn ($q) => $q->whereHas('session', fn ($s) => $s->where('teacher_id', $request->integer('teacher_id'))))
-            ->when($request->filled('date_from'), fn ($q) => $q->whereHas('session', fn ($s) => $s->where('session_date', '>=', $request->input('date_from'))))
-            ->when($request->filled('date_to'), fn ($q) => $q->whereHas('session', fn ($s) => $s->where('session_date', '<=', $request->input('date_to'))))
-            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->input('status')))
+            ->when($user->isTeacher(), fn ($q) => $q->forTeacher($user->teacher))
+            ->when($request->filled('student_id'), fn ($q) => $q->forStudent($request->integer('student_id')))
+            ->when($request->filled('class_id'), fn ($q) => $q->forClass($request->integer('class_id')))
+            ->when($request->filled('teacher_id') && $user->isAdmin(), fn ($q) => $q->forTeacherSessions($request->integer('teacher_id')))
+            ->when($request->filled('date_from'), fn ($q) => $q->fromDate($request->input('date_from')))
+            ->when($request->filled('date_to'), fn ($q) => $q->toDate($request->input('date_to')))
+            ->when($request->filled('status'), fn ($q) => $q->withStatus($request->input('status')))
             ->paginate(20);
 
         return $this->successResponse([
