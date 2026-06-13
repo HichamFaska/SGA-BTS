@@ -22,7 +22,7 @@ class Absence extends Model {
 
     protected static function booted(): void {
         static::creating(function (Absence $absence) {
-            if ($absence->duration === 0 && $absence->session_id) {
+            if (!$absence->duration && $absence->session_id) {
                 $absence->loadMissing('session');
                 $absence->duration = $absence->session->durationInMinutes();
             }
