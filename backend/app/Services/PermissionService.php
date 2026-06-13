@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Models\Absence;
 use App\Models\AcademicYear;
 use App\Models\Classe;
 use App\Models\Enrollment;
 use App\Models\Filiere;
+use App\Models\Justification;
 use App\Models\Session;
 use App\Models\TeacherClasse;
 use App\Models\Invitation;
@@ -87,11 +89,14 @@ class PermissionService {
                 'delete' => $user->isAdmin() || $user->isTeacher(),
             ],
             'absences' => [
-                'viewAny' => $user->isAdmin() || $user->isTeacher(),
+                'viewAny' => $user->can('viewAny', Absence::class),
                 'create' => $user->isAdmin() || $user->isTeacher(),
                 'update' => $user->isAdmin() || $user->isTeacher(),
-                'updateStatus' => $user->isAdmin(),
+                'updateStatus' => $user->can('updateStatus', Absence::class),
                 'delete' => $user->isAdmin() || $user->isTeacher(),
+            ],
+            'justifications' => [
+                'manage' => $user->can('manage', Justification::class),
             ],
         ];
     }
