@@ -3,6 +3,8 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\EnrollmentController;
+use App\Http\Controllers\AbsenceController;
+use App\Http\Controllers\SessionController;
 use App\Http\Controllers\TeacherClasseController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
@@ -168,6 +170,38 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::delete('/{filiere}', [FiliereController::class, 'destroy'])->name('destroy');
             });
         });
+
+    Route::prefix('sessions')
+        ->name('sessions.')
+        ->group(function () {
+            Route::middleware('role:teacher')->group(function () {
+                Route::get('/my-classes', [SessionController::class, 'myClasses'])->name('my-classes');
+            });
+            Route::middleware('role:teacher,admin')->group(function () {
+                Route::get('/', [SessionController::class, 'index'])->name('index');
+                Route::post('/', [SessionController::class, 'store'])->name('store');
+                Route::put('/{session}', [SessionController::class, 'update'])->name('update');
+                Route::get('/{session}/students', [SessionController::class, 'students'])->name('students');
+                Route::get('/{session}/available-students', [SessionController::class, 'availableStudents'])->name('available-students');
+                Route::get('/{session}', [SessionController::class, 'show'])->name('show');
+                Route::delete('/{session}', [SessionController::class, 'destroy'])->name('destroy');
+            });
+        });
+
+    Route::prefix('absences')
+        ->name('absences.')
+        ->group(function () {
+            Route::middleware('role:teacher,admin')->group(function () {
+                Route::get('/', [AbsenceController::class, 'index'])->name('index');
+                Route::post('/sessions/{session}', [AbsenceController::class, 'store'])->name('store');
+                Route::put('/{absence}', [AbsenceController::class, 'update'])->name('update');
+                Route::delete('/{absence}', [AbsenceController::class, 'destroy'])->name('destroy');
+            });
+            Route::middleware('role:teacher')->group(function () {
+                Route::post('/sessions/{session}/record', [AbsenceController::class, 'recordAbsences'])->name('record');
+            });
+        });
+
 });
 
 Route::get('invitations/{token}', [TeacherController::class, 'showByToken'])->name('invitations.show');

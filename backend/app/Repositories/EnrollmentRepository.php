@@ -28,7 +28,7 @@ class EnrollmentRepository {
                     ->orWhereLike('matricule', "%{$search}%")
             ))
             ->latest()
-            ->paginate(15);
+            ->paginate(10);
     }
 
     public function availableStudents(int $classId, int $academicYearId): Collection {
