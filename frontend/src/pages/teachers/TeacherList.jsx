@@ -297,7 +297,6 @@ export default function TeacherList() {
                         <TableRow>
                             <TableHead>Nom</TableHead>
                             <TableHead>Matricule</TableHead>
-                            <TableHead>Email</TableHead>
                             <TableHead>Téléphone</TableHead>
                             <TableHead>Matière</TableHead>
                             <TableHead>Statut</TableHead>
@@ -334,7 +333,6 @@ export default function TeacherList() {
                                         </div>
                                     </TableCell>
                                     <TableCell className="text-muted-foreground">{teacher.matricule}</TableCell>
-                                    <TableCell className="text-muted-foreground">{teacher.user.email}</TableCell>
                                     <TableCell className="text-muted-foreground">{teacher.user.phone || "—"}</TableCell>
                                     <TableCell className="text-muted-foreground">{teacher.subject || "—"}</TableCell>
                                     <TableCell><Badge variant={teacher.user.status === "active" ? "success" : "secondary"}>{teacher.user.status === "active" ? "Actif" : "Inactif"}</Badge></TableCell>

@@ -2,7 +2,6 @@ import { Navigate, createBrowserRouter } from "react-router-dom"
 import AuthGuard from "@/router/guards/AuthGuard"
 import GuestGuard from "@/router/guards/GuestGuard"
 import PermissionGuard from "@/router/guards/PermissionGuard"
-import RoleGuard from "@/router/guards/RoleGuard"
 import { AuthLayout } from "@/components/layouts/AuthLayout"
 import { AppLayout } from "@/components/layouts/AppLayout"
 import Login from "@/pages/Login"
@@ -17,6 +16,9 @@ import AcademicYearList from "@/pages/academic-years/AcademicYearList"
 import EnrollmentList from "@/pages/enrollments/EnrollmentList"
 import BulkEnrollment from "@/pages/enrollments/BulkEnrollment"
 import TeacherClasseList from "@/pages/teacher-classes/TeacherClasseList"
+import Sessions from "@/pages/sessions/Sessions"
+import RecordAbsencesPage from "@/pages/sessions/RecordAbsencesPage"
+import SessionAbsencesPage from "@/pages/sessions/SessionAbsencesPage"
 import Absences from "@/pages/Absences"
 import AppSettings from "@/pages/AppSettings"
 import NotFound from "@/pages/NotFound"
@@ -66,7 +68,10 @@ const router = createBrowserRouter([
             { path: "/enrollments", element: <PermissionGuard permission="enrollments.viewAny"><EnrollmentList /></PermissionGuard> },
             { path: "/enrollments/bulk", element: <PermissionGuard permission="enrollments.bulkCreate"><BulkEnrollment /></PermissionGuard> },
             { path: "/teacher-classes", element: <PermissionGuard permission="teacher_classes.viewAny"><TeacherClasseList /></PermissionGuard> },
+            { path: "/sessions", element: <PermissionGuard permission="sessions.viewAny"><Sessions /></PermissionGuard> },
+            { path: "/sessions/:sessionId/absences", element: <PermissionGuard permission="sessions.viewAny"><SessionAbsencesPage /></PermissionGuard> },
             { path: "/absences", element: <Absences /> },
+            { path: "/absences/record/:sessionId", element: <PermissionGuard permission="sessions.create"><RecordAbsencesPage /></PermissionGuard> },
             { path: "/settings", element: <AppSettings /> },
         ],
     },

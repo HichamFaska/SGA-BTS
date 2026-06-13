@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, GraduationCap, CalendarX, CalendarDays, ClipboardList, BookUser, BookOpen, FolderOpen, School, Settings, X } from "lucide-react"
+import { LayoutDashboard, Users, GraduationCap, CalendarX, CalendarClock, CalendarDays, ClipboardList, BookUser, BookOpen, FolderOpen, School, Settings, X } from "lucide-react"
 import { NavLink, useLocation } from "react-router-dom"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
@@ -18,7 +18,8 @@ const navItems = [
     { label: "Années académiques", to: "/academic-years", icon: CalendarDays, permission: "academic_years.viewAny" },
     { label: "Inscriptions", to: "/enrollments", icon: ClipboardList, permission: "enrollments.viewAny" },
     { label: "Affectations", to: "/teacher-classes", icon: BookUser, permission: "teacher_classes.viewAny" },
-    { label: "Absences", to: "/absences", icon: CalendarX },
+    { label: "Séances", to: "/sessions", icon: CalendarClock, permission: "sessions.viewAny" },
+    { label: "Absences", to: "/absences", icon: CalendarX, permission: "sessions.viewAny" },
     { label: "Paramètres", to: "/settings", icon: Settings },
 ]
 
