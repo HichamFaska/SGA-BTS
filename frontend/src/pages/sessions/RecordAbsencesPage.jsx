@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { ArrowLeft, CalendarClock, Clock, Loader2, Users } from "lucide-react"
+import { ArrowLeft, CalendarClock, Clock, Loader2, UserX, Users } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -147,6 +147,12 @@ export default function RecordAbsencesPage() {
                 </div>
 
                 <div className="divide-y">
+                    {students.length === 0 && (
+                        <div className="flex flex-col items-center gap-3 py-16 text-center">
+                            <UserX className="size-10 text-muted-foreground" />
+                            <p className="text-sm text-muted-foreground">Aucun étudiant inscrit dans cette classe.</p>
+                        </div>
+                    )}
                     {students.map((student) => {
                         const isAbsent = student.id in absentDurations
                         return (
@@ -196,7 +202,7 @@ export default function RecordAbsencesPage() {
                 <Button variant="outline" onClick={() => navigate("/sessions")}>
                     Annuler
                 </Button>
-                <Button onClick={handleSubmit} disabled={submitting}>
+                <Button onClick={handleSubmit} disabled={submitting || students.length === 0}>
                     {submitting && <Loader2 className="mr-2 size-4 animate-spin" />}
                     Enregistrer l&apos;appel ({absentCount} absent{absentCount !== 1 ? "s" : ""})
                 </Button>
