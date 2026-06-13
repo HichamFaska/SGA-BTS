@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateProfileRequest extends FormRequest {
 
@@ -14,7 +15,7 @@ class UpdateProfileRequest extends FormRequest {
         return [
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phone' => ['nullable', 'string', 'max:20', Rule::unique('users', 'phone')->ignore($this->user()->id)->whereNotNull('phone')],
             'address' => ['nullable', 'string', 'max:500'],
         ];
     }
@@ -26,6 +27,7 @@ class UpdateProfileRequest extends FormRequest {
             'last_name.required' => 'Le nom est obligatoire.',
             'last_name.max' => 'Le nom ne peut pas dépasser 255 caractères.',
             'phone.max' => 'Le numéro de téléphone ne peut pas dépasser 20 caractères.',
+            'phone.unique' => 'Ce numéro de téléphone est déjà utilisé.',
             'address.max' => "L'adresse ne peut pas dépasser 500 caractères.",
         ];
     }

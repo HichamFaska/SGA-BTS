@@ -19,7 +19,7 @@ class UpdateStudentRequest extends FormRequest {
             'first_name' => ['sometimes', 'string', 'max:50'],
             'last_name' => ['sometimes', 'string', 'max:50'],
             'birth_date' => ['sometimes', 'nullable', 'date'],
-            'email' => ['sometimes', 'nullable', 'email', 'max:100'],
+            'email' => ['sometimes', 'nullable', 'email', 'max:100', Rule::unique('students', 'email')->ignore($studentId)->whereNotNull('email')],
             'phone' => ['sometimes', 'nullable', 'string', 'max:20'],
             'address' => ['sometimes', 'nullable', 'string'],
         ];
@@ -37,6 +37,7 @@ class UpdateStudentRequest extends FormRequest {
             'birth_date.date' => 'La date de naissance doit être une date valide.',
             'email.email' => 'L\'adresse email doit être valide.',
             'email.max' => 'L\'adresse email ne doit pas dépasser :max caractères.',
+            'email.unique' => 'Cette adresse email est déjà utilisée par un autre étudiant.',
             'phone.string' => 'Le téléphone doit être une chaîne de caractères.',
             'phone.max' => 'Le téléphone ne doit pas dépasser :max caractères.',
             'address.string' => 'L\'adresse doit être une chaîne de caractères.',

@@ -13,7 +13,9 @@ class UpdateTeacherRequest extends FormRequest {
     }
 
     public function rules(): array {
-        $teacherId = $this->route('teacher')?->id;
+        $teacher = $this->route('teacher');
+        $teacherId = $teacher?->id;
+        $userId = $teacher?->user_id;
 
         return [
             'matricule' => ['sometimes', 'string', 'max:50', Rule::unique('teachers', 'matricule')->ignore($teacherId)],
@@ -21,7 +23,7 @@ class UpdateTeacherRequest extends FormRequest {
             'subject_id' => ['sometimes', 'nullable', 'integer', 'exists:subjects,id'],
             'first_name' => ['sometimes', 'string', 'max:50'],
             'last_name' => ['sometimes', 'string', 'max:50'],
-            'phone' => ['sometimes', 'nullable', 'string', 'max:20'],
+            'phone' => ['sometimes', 'nullable', 'string', 'max:20', Rule::unique('users', 'phone')->ignore($userId)->whereNotNull('phone')],
             'address' => ['sometimes', 'nullable', 'string'],
             'avatar' => ['sometimes', 'nullable', 'string', 'max:255'],
             'status' => ['sometimes', Rule::enum(UserStatusEnum::class)],
@@ -42,6 +44,7 @@ class UpdateTeacherRequest extends FormRequest {
             'last_name.max' => 'Le nom ne doit pas dépasser :max caractères.',
             'phone.string' => 'Le téléphone doit être une chaîne de caractères.',
             'phone.max' => 'Le téléphone ne doit pas dépasser :max caractères.',
+            'phone.unique' => 'Ce numéro de téléphone est déjà utilisé.',
             'address.string' => 'L\'adresse doit être une chaîne de caractères.',
             'avatar.string' => 'L\'avatar doit être une chaîne de caractères.',
             'avatar.max' => 'L\'avatar ne doit pas dépasser :max caractères.',

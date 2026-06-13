@@ -29,7 +29,7 @@ class CreateInvitationRequest extends FormRequest {
                 'after:1900-01-01',
                 'before_or_equal:'.now()->subYears(16)->toDateString(),
             ],
-            'phone' => ['nullable', 'string', 'max:50'],
+            'phone' => ['nullable', 'string', 'max:50', Rule::unique('users', 'phone')->whereNotNull('phone')],
             'address' => ['nullable', 'string', 'max:255'],
             'avatar' => ['nullable', 'string', 'max:255'],
             'subject_id' => ['nullable', 'integer', 'exists:subjects,id'],
@@ -63,6 +63,7 @@ class CreateInvitationRequest extends FormRequest {
             
             'phone.string' => 'Le numéro de téléphone doit être une chaîne de caractères.',
             'phone.max' => 'Le numéro de téléphone ne doit pas dépasser 50 caractères.',
+            'phone.unique' => 'Ce numéro de téléphone est déjà utilisé.',
             
             'address.string' => 'L\'adresse doit être une chaîne de caractères.',
             'address.max' => 'L\'adresse ne doit pas dépasser 255 caractères.',
