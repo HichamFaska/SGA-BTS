@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react"
-import { CalendarX, Loader2, RefreshCw, Search, Trash2, X } from "lucide-react"
+import { CalendarX, Loader2, RefreshCw, Search, X } from "lucide-react"
 
-import Can from "@/components/Can"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
     Pagination, PaginationContent, PaginationEllipsis,
     PaginationItem, PaginationLink, PaginationNext, PaginationPrevious,
@@ -24,7 +22,7 @@ const STATUS_OPTIONS = [
 const emptyFilters = { class_id: "", date_from: "", date_to: "", status: "" }
 
 export default function TeacherAbsencesPage() {
-    const { success: toastSuccess, error: toastError } = useToast()
+    const { error: toastError } = useToast()
 
     const [absences, setAbsences] = useState([])
     const [myClasses, setMyClasses] = useState([])
@@ -32,9 +30,6 @@ export default function TeacherAbsencesPage() {
     const [page, setPage] = useState(1)
     const [loading, setLoading] = useState(true)
     const [filters, setFilters] = useState(emptyFilters)
-
-    const [deleteTarget, setDeleteTarget] = useState(null)
-    const [deleting, setDeleting] = useState(false)
 
     useEffect(() => {
         sessionService.myClasses()
@@ -72,21 +67,6 @@ export default function TeacherAbsencesPage() {
         setFilters(emptyFilters)
         setPage(1)
         fetchAbsences(1, emptyFilters)
-    }
-
-    const handleDelete = async () => {
-        if (!deleteTarget) return
-        setDeleting(true)
-        try {
-            const response = await absenceService.remove(deleteTarget.id)
-            toastSuccess(response.message)
-            setDeleteTarget(null)
-            fetchAbsences()
-        } catch (err) {
-            toastError(err?.message)
-        } finally {
-            setDeleting(false)
-        }
     }
 
     return (
@@ -177,19 +157,18 @@ export default function TeacherAbsencesPage() {
                             <TableHead>Date</TableHead>
                             <TableHead>Durée</TableHead>
                             <TableHead>Statut</TableHead>
-                            <TableHead className="w-16" />
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {loading ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="py-12 text-center">
+                                <TableCell colSpan={5} className="py-12 text-center">
                                     <Loader2 className="mx-auto size-6 animate-spin text-muted-foreground" />
                                 </TableCell>
                             </TableRow>
                         ) : absences.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="py-16 text-center">
+                                <TableCell colSpan={5} className="py-16 text-center">
                                     <div className="flex flex-col items-center gap-3">
                                         <CalendarX className="size-10 text-muted-foreground" />
                                         <p className="text-sm text-muted-foreground">Aucune absence trouvée.</p>
@@ -214,18 +193,6 @@ export default function TeacherAbsencesPage() {
                                         <Badge variant={absence.status === "justifiée" ? "success" : "destructive"}>
                                             {absence.status}
                                         </Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Can permission="absences.delete">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="size-7 text-destructive hover:text-destructive"
-                                                onClick={() => setDeleteTarget(absence)}
-                                            >
-                                                <Trash2 className="size-3.5" />
-                                            </Button>
-                                        </Can>
                                     </TableCell>
                                 </TableRow>
                             ))
@@ -269,29 +236,6 @@ export default function TeacherAbsencesPage() {
                     </PaginationContent>
                 </Pagination>
             )}
-
-            {/* Supprimer */}
-            <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Supprimer l&apos;absence</DialogTitle>
-                        <DialogDescription>
-                            Supprimer l&apos;absence de{" "}
-                            <span className="font-medium text-foreground">
-                                {deleteTarget?.student?.first_name} {deleteTarget?.student?.last_name}
-                            </span>{" "}
-                            ? Cette action est irréversible.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setDeleteTarget(null)}>Annuler</Button>
-                        <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
-                            {deleting && <Loader2 className="mr-2 size-4 animate-spin" />}
-                            Supprimer
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
         </div>
     )
 }
