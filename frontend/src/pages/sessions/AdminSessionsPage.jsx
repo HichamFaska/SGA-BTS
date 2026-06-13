@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { CalendarClock, Clock, Loader2, RefreshCw, Trash2, Users } from "lucide-react"
 
 import Can from "@/components/Can"
@@ -11,15 +11,15 @@ import { useToast } from "@/components/ui/use-toast"
 import sessionService from "@/services/sessionService"
 import { formatTime } from "@/lib/session-utils"
 
-const todayDate = new Date().toISOString().split("T")[0]
-
 export default function AdminSessionsPage() {
     const navigate = useNavigate()
     const { error: toastError, success: toastSuccess } = useToast()
 
     const [sessions, setSessions] = useState([])
     const [loading, setLoading] = useState(true)
-    const [dateFilter, setDateFilter] = useState(todayDate)
+    const [searchParams, setSearchParams] = useSearchParams()
+    const dateFilter = searchParams.get("date") || new Date().toISOString().split("T")[0]
+    const setDateFilter = (date) => setSearchParams({ date }, { replace: true })
     const [deleteTarget, setDeleteTarget] = useState(null)
     const [deleting, setDeleting] = useState(false)
 
