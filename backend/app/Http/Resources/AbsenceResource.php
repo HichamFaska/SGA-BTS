@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class AbsenceResource extends JsonResource {
 
@@ -32,6 +33,14 @@ class AbsenceResource extends JsonResource {
                 'first_name' => $this->student->first_name,
                 'last_name' => $this->student->last_name,
             ]),
+            'justification' => $this->whenLoaded('justification', fn () => $this->justification ? [
+                'id' => $this->justification->id,
+                'reason' => $this->justification->reason,
+                'document_url' => $this->justification->document_url
+                    ? Storage::disk('public')->url($this->justification->document_url)
+                    : null,
+                'created_at' => $this->justification->created_at->toDateTimeString(),
+            ] : null),
             'session' => $this->whenLoaded('session', fn () => [
                 'id' => $this->session->id,
                 'session_date' => $this->session->session_date->toDateString(),
