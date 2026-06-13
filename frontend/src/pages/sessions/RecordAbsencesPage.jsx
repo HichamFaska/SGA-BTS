@@ -117,10 +117,13 @@ export default function RecordAbsencesPage() {
                                 <Clock className="size-3" />
                                 {formatTime(session?.start_time)} → {formatTime(session?.end_time)}
                             </span>
-                            {sessionDuration > 0 && (
-                                <span className="ml-2 text-muted-foreground/70">({formatMinutes(sessionDuration)})</span>
-                            )}
                         </p>
+                        {sessionDuration > 0 && (
+                            <span className="inline-flex items-center gap-1.5 mt-1 rounded-md bg-orange-100 px-2.5 py-1 text-sm font-bold text-orange-600 dark:bg-orange-950 dark:text-orange-400">
+                                <Clock className="size-4" />
+                                {formatMinutes(sessionDuration)}
+                            </span>
+                        )}
                     </div>
                 </div>
             </div>
