@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import { ArrowLeft, CalendarClock, Clock, Loader2, Pencil, Plus, Trash2, Users } from "lucide-react"
 
 import Can from "@/components/Can"
+import JustifyDialog from "@/components/JustifyDialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -28,6 +29,8 @@ export default function SessionAbsencesPage() {
     const [deleteTarget, setDeleteTarget] = useState(null)
     const [deleting, setDeleting] = useState(false)
 
+    const [justifyTarget, setJustifyTarget] = useState(null)
+
     const [addDialogOpen, setAddDialogOpen] = useState(false)
     const [addStudentId, setAddStudentId] = useState("")
     const [addDuration, setAddDuration] = useState("")
@@ -45,7 +48,7 @@ export default function SessionAbsencesPage() {
                 setAvailableStudents(studentsResponse.data.students ?? [])
             } catch {
                 toastError("Impossible de charger les détails de la séance.")
-                navigate("/sessions")
+                navigate(-1)
             } finally {
                 setLoading(false)
             }
@@ -145,7 +148,7 @@ export default function SessionAbsencesPage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                    <Button variant="ghost" size="icon" onClick={() => navigate("/sessions")}>
+                    <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
                         <ArrowLeft className="size-4" />
                     </Button>
                     <div className="flex items-center gap-3">
@@ -206,6 +209,16 @@ export default function SessionAbsencesPage() {
                                     <Badge variant={absence.status === "justifiée" ? "success" : "destructive"}>
                                         {absence.status}
                                     </Badge>
+                                    <Can permission="justifications.manage">
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="text-xs h-7"
+                                            onClick={() => setJustifyTarget(absence)}
+                                        >
+                                            {absence.justification ? "Voir" : "Justifier"}
+                                        </Button>
+                                    </Can>
                                     <Can permission="absences.update">
                                         <Button
                                             variant="ghost"
@@ -338,6 +351,15 @@ export default function SessionAbsencesPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {justifyTarget && (
+                <JustifyDialog
+                    absence={justifyTarget}
+                    open={!!justifyTarget}
+                    onOpenChange={(isOpen) => { if (!isOpen) setJustifyTarget(null) }}
+                    onSuccess={() => refreshData()}
+                />
+            )}
         </div>
     )
 }
