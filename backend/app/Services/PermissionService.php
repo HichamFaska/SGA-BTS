@@ -94,9 +94,13 @@ class PermissionService {
                 'update' => $user->isAdmin() || $user->isTeacher(),
                 'updateStatus' => $user->can('updateStatus', Absence::class),
                 'delete' => $user->isAdmin() || $user->isTeacher(),
+                'notifyStudent' => $user->can('notifyStudent', Absence::class),
             ],
             'justifications' => [
                 'manage' => $user->can('manage', Justification::class),
+            ],
+            'notifications' => [
+                'viewAny' => $user->isAdmin(),
             ],
         ];
     }
