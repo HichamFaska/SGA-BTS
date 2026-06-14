@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { ArrowLeft, CalendarClock, Clock, Loader2, Pencil, Plus, Trash2, Users } from "lucide-react"
+import { ArrowLeft, CalendarClock, Clock, Loader2, Mail, Pencil, Plus, Trash2, Users } from "lucide-react"
 
 import Can from "@/components/Can"
 import JustifyDialog from "@/components/JustifyDialog"
@@ -30,6 +30,9 @@ export default function SessionAbsencesPage() {
     const [deleting, setDeleting] = useState(false)
 
     const [justifyTarget, setJustifyTarget] = useState(null)
+
+    const [notifyTarget, setNotifyTarget] = useState(null)
+    const [notifying, setNotifying] = useState(false)
 
     const [addDialogOpen, setAddDialogOpen] = useState(false)
     const [addStudentId, setAddStudentId] = useState("")
@@ -108,6 +111,20 @@ export default function SessionAbsencesPage() {
             toastError(error?.message ?? "Impossible de supprimer l'absence.")
         } finally {
             setDeleting(false)
+        }
+    }
+
+    const handleNotify = async () => {
+        if (!notifyTarget) return
+        setNotifying(true)
+        try {
+            const response = await absenceService.notifyStudent(notifyTarget.id)
+            toastSuccess(response.message)
+            setNotifyTarget(null)
+        } catch (error) {
+            toastError(error?.message ?? "Impossible d'envoyer la notification.")
+        } finally {
+            setNotifying(false)
         }
     }
 
@@ -209,6 +226,16 @@ export default function SessionAbsencesPage() {
                                     <Badge variant={absence.status === "justifiée" ? "success" : "destructive"}>
                                         {absence.status}
                                     </Badge>
+                                    <Can permission="absences.notifyStudent">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-8"
+                                            onClick={() => setNotifyTarget(absence)}
+                                        >
+                                            <Mail className="size-3.5" />
+                                        </Button>
+                                    </Can>
                                     <Can permission="justifications.manage">
                                         <Button
                                             variant="ghost"
@@ -347,6 +374,32 @@ export default function SessionAbsencesPage() {
                         <Button onClick={handleAdd} disabled={adding || !addStudentId || !addDuration}>
                             {adding && <Loader2 className="mr-2 size-4 animate-spin" />}
                             Ajouter
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Notifier l'étudiant */}
+            <Dialog open={!!notifyTarget} onOpenChange={(open) => !open && setNotifyTarget(null)}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Notifier l&apos;étudiant</DialogTitle>
+                        <DialogDescription>
+                            Un email sera envoyé à{" "}
+                            <span className="font-medium text-foreground">
+                                {notifyTarget?.student?.first_name} {notifyTarget?.student?.last_name}
+                            </span>{" "}
+                            pour l&apos;informer de son absence et lui demander de fournir un justificatif.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setNotifyTarget(null)}>Annuler</Button>
+                        <Button variant="success" onClick={handleNotify} disabled={notifying}>
+                            {notifying
+                                ? <Loader2 className="mr-2 size-4 animate-spin" />
+                                : <Mail className="mr-2 size-4" />
+                            }
+                            Envoyer l&apos;email
                         </Button>
                     </DialogFooter>
                 </DialogContent>

@@ -25,6 +25,11 @@ const absenceService = {
         const response = await api.delete(`/absences/${absenceId}`)
         return response.data
     },
+
+    async notifyStudent(absenceId) {
+        const response = await api.post(`/absences/${absenceId}/notify-student`)
+        return response.data
+    },
 }
 
 export default absenceService
