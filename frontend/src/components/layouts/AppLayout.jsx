@@ -1,6 +1,8 @@
 import { LogOut, Loader2, Menu, Mail, Phone, Settings } from "lucide-react"
 import { useState } from "react"
 import { Outlet, useNavigate, NavLink } from "react-router-dom"
+import Can from "@/components/Can"
+import NotificationBell from "@/components/NotificationBell"
 import { Button } from "../ui/button"
 import {
     Dialog,
@@ -61,6 +63,10 @@ export function AppLayout() {
                     </button>
 
                     <div className="flex-1" />
+
+                    <Can role="admin">
+                        <NotificationBell />
+                    </Can>
 
                     {user && (
                         <DropdownMenu>
