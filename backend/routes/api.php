@@ -5,6 +5,7 @@ use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\AbsenceController;
 use App\Http\Controllers\JustificationController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\TeacherClasseController;
 use App\Http\Controllers\AuthController;
@@ -201,6 +202,9 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::middleware('role:teacher')->group(function () {
                 Route::post('/sessions/{session}/record', [AbsenceController::class, 'recordAbsences'])->name('record');
             });
+            Route::middleware('role:admin')->group(function () {
+                Route::post('/{absence}/notify-student', [AbsenceController::class, 'notifyStudent'])->name('notify-student');
+            });
         });
 
     Route::prefix('justifications')
@@ -210,6 +214,15 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/absences/{absence}', [JustificationController::class, 'store'])->name('store');
             Route::post('/{justification}', [JustificationController::class, 'update'])->name('update');
             Route::delete('/{justification}', [JustificationController::class, 'destroy'])->name('destroy');
+        });
+
+    Route::prefix('notifications')
+        ->name('notifications.')
+        ->middleware('role:admin')
+        ->group(function () {
+            Route::get('/', [NotificationController::class, 'index'])->name('index');
+            Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unread-count');
+            Route::post('/read-all', [NotificationController::class, 'markAllAsRead'])->name('read-all');
         });
 
 });
