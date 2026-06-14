@@ -6,15 +6,22 @@ use App\Http\Requests\RecordAbsencesRequest;
 use App\Http\Requests\StoreAbsenceRequest;
 use App\Http\Requests\UpdateAbsenceRequest;
 use App\Http\Resources\AbsenceResource;
+use App\Mail\AbsenceReminderMail;
 use App\Models\Absence;
 use App\Models\Session;
+use App\Services\NotificationService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AbsenceController extends Controller {
 
     use ApiResponse;
+
+    public function __construct(private NotificationService $notificationService) {}
 
     public function index(Request $request): JsonResponse {
         $this->authorize('viewAny', Absence::class);
@@ -51,14 +58,20 @@ class AbsenceController extends Controller {
             return $this->errorResponse('Cet étudiant est déjà enregistré comme absent pour cette séance.', 422);
         }
 
-        $absence = Absence::create([
-            'session_id' => $session->id,
-            'student_id' => $request->student_id,
-            'duration' => $request->duration,
-            'recorded_by' => $request->user()->id,
-        ]);
+        $absence = DB::transaction(function () use ($request, $session) {
+            $absence = Absence::create([
+                'session_id' => $session->id,
+                'student_id' => $request->student_id,
+                'duration' => $request->duration,
+                'recorded_by' => $request->user()->id,
+            ]);
 
-        $absence->load('student');
+            $absence->load('student');
+
+            $this->notificationService->notifyAdminsAbsenceAdded($absence);
+
+            return $absence;
+        });
 
         return $this->successResponse([
             'absence' => new AbsenceResource($absence),
@@ -68,16 +81,20 @@ class AbsenceController extends Controller {
     public function recordAbsences(RecordAbsencesRequest $request, Session $session): JsonResponse {
         $this->authorize('recordAbsences', $session);
 
-        collect($request->absences)->each(fn ($item) => Absence::create([
-            'session_id' => $session->id,
-            'student_id' => $item['student_id'],
-            'duration' => $item['duration'],
-            'recorded_by' => $request->user()->id,
-        ]));
+        $absences = DB::transaction(function () use ($request, $session) {
+            collect($request->absences)->each(fn ($item) => Absence::create([
+                'session_id' => $session->id,
+                'student_id' => $item['student_id'],
+                'duration' => $item['duration'],
+                'recorded_by' => $request->user()->id,
+            ]));
 
-        $session->update(['called_at' => now()]);
+            $session->update(['called_at' => now()]);
 
-        $absences = $session->absences()->with('student')->get();
+            $this->notificationService->notifyAdminsAbsencesRecorded($session, count($request->absences));
+
+            return $session->absences()->with('student')->get();
+        });
 
         return $this->successResponse([
             'absences' => AbsenceResource::collection($absences),
@@ -106,5 +123,28 @@ class AbsenceController extends Controller {
         $absence->delete();
 
         return $this->successResponse([], 'Absence supprimée avec succès.');
+    }
+
+    public function notifyStudent(Absence $absence): JsonResponse {
+        $this->authorize('notifyStudent', $absence);
+
+        $rateLimiterKey = 'notify-absence-'.$absence->id;
+
+        if (RateLimiter::tooManyAttempts($rateLimiterKey, 1)) {
+            $seconds = RateLimiter::availableIn($rateLimiterKey);
+            $minutes = ceil($seconds / 60);
+            return $this->errorResponse(
+                "Une notification a déjà été envoyée. Veuillez patienter {$minutes} minute(s) avant de réessayer.",
+                429
+            );
+        }
+
+        $absence->loadMissing(['student', 'session.classe']);
+
+        Mail::to($absence->student->email)->send(new AbsenceReminderMail($absence));
+
+        RateLimiter::hit($rateLimiterKey, 600);
+
+        return $this->successResponse([], "Notification envoyée à {$absence->student->first_name} {$absence->student->last_name}.");
     }
 }
