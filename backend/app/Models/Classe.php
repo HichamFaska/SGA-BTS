@@ -37,7 +37,7 @@ class Classe extends Model {
     }
 
     public function courseSessions(): HasMany {
-        return $this->hasMany(Session::class);
+        return $this->hasMany(Session::class, 'class_id');
     }
 
     public function scopeSearch(Builder $query, ?string $search): Builder {
