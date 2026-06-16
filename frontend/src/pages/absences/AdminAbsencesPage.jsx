@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useSearchParams } from "react-router-dom"
 import { CalendarX, Loader2, RefreshCw, Search, Trash2, X } from "lucide-react"
 
 import Can from "@/components/Can"
@@ -26,11 +27,18 @@ const emptyFilters = { date_from: "", date_to: "", status: "" }
 export default function AdminAbsencesPage() {
     const { success: toastSuccess, error: toastError } = useToast()
 
+    const [searchParams] = useSearchParams()
+    const initialFilters = {
+        date_from: searchParams.get("date_from") || "",
+        date_to: searchParams.get("date_to") || "",
+        status: searchParams.get("status") || "",
+    }
+
     const [absences, setAbsences] = useState([])
     const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0 })
     const [page, setPage] = useState(1)
     const [loading, setLoading] = useState(true)
-    const [filters, setFilters] = useState(emptyFilters)
+    const [filters, setFilters] = useState(initialFilters)
 
     const [justifyTarget, setJustifyTarget] = useState(null)
     const [deleteTarget, setDeleteTarget] = useState(null)
