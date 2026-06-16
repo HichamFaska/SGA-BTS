@@ -20,6 +20,9 @@ import Sessions from "@/pages/sessions/Sessions"
 import RecordAbsencesPage from "@/pages/sessions/RecordAbsencesPage"
 import SessionAbsencesPage from "@/pages/sessions/SessionAbsencesPage"
 import Absences from "@/pages/Absences"
+import StudentsOverThresholdPage from "@/pages/stats/StudentsOverThresholdPage"
+import StudentsConsecutiveAbsencesPage from "@/pages/stats/StudentsConsecutiveAbsencesPage"
+import StudentsAbsenceHoursPage from "@/pages/stats/StudentsAbsenceHoursPage"
 import AppSettings from "@/pages/AppSettings"
 import NotFound from "@/pages/NotFound"
 import { RouteErrorBoundary } from "@/components/ErrorBoundary"
@@ -72,6 +75,9 @@ const router = createBrowserRouter([
             { path: "/sessions/:sessionId/absences", element: <PermissionGuard permission="sessions.viewAny"><SessionAbsencesPage /></PermissionGuard> },
             { path: "/absences", element: <Absences /> },
             { path: "/absences/record/:sessionId", element: <PermissionGuard permission="sessions.create"><RecordAbsencesPage /></PermissionGuard> },
+            { path: "/stats/over-threshold", element: <StudentsOverThresholdPage /> },
+            { path: "/stats/consecutive-absences", element: <StudentsConsecutiveAbsencesPage /> },
+            { path: "/stats/absence-hours", element: <StudentsAbsenceHoursPage /> },
             { path: "/settings", element: <AppSettings /> },
         ],
     },
