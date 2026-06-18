@@ -7,6 +7,7 @@ use App\Http\Controllers\AbsenceController;
 use App\Http\Controllers\JustificationController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AdminStatsController;
+use App\Http\Controllers\TeacherStatsController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\TeacherClasseController;
 use App\Http\Controllers\AuthController;
@@ -222,6 +223,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/students-over-threshold', [AdminStatsController::class, 'studentsOverThreshold'])->name('students-over-threshold');
         Route::get('/students-consecutive-absences', [AdminStatsController::class, 'studentsConsecutiveAbsences'])->name('students-consecutive-absences');
         Route::get('/students-absence-hours', [AdminStatsController::class, 'studentsAbsenceHours'])->name('students-absence-hours');
+    });
+
+    Route::middleware('role:teacher')->prefix('teacher/stats')->name('teacher-stats.')->group(function () {
+        Route::get('/', [TeacherStatsController::class, 'index'])->name('index');
     });
 
     Route::prefix('notifications')
