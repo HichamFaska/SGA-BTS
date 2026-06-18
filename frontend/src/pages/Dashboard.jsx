@@ -28,6 +28,11 @@ const pieConfig = {
     "Non justifiées": { label: "Non justifiées", color: "#ef4444" },
 }
 
+const attendanceConfig = {
+    "Présence": { label: "Présence", color: "#22c55e" },
+    "Absence": { label: "Absence", color: "#ef4444" },
+}
+
 function StatCard({ icon: Icon, label, value, loading, to }) {
     const card = (
         <Card className={`border rounded-none shadow-none ring-0 ${to ? "transition-colors hover:bg-muted/50 cursor-pointer" : ""}`}>
@@ -59,6 +64,8 @@ const toLocalDate = (date) => {
 function Dashboard() {
     const { user } = useAuth()
     const [stats, setStats] = useState(null)
+    const [teacherStats, setTeacherStats] = useState(null)
+    const [teacherLoading, setTeacherLoading] = useState(true)
 
     const now = new Date()
     const yesterday = toLocalDate(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1))
@@ -102,6 +109,146 @@ function Dashboard() {
             })
             .finally(() => setLoading(false))
     }, [user, academicYearId])
+
+    useEffect(() => {
+        if (user?.role !== "teacher") return
+        setTeacherLoading(true)
+        statsService.teacherIndex()
+            .then((res) => setTeacherStats(res.data))
+            .finally(() => setTeacherLoading(false))
+    }, [user])
+
+    if (user?.role === "teacher") {
+        return (
+            <section className="space-y-8">
+                <div className="flex items-center gap-2">
+                    <LayoutDashboard className="size-6" />
+                    <h1 className="text-2xl font-bold">Tableau de bord</h1>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <StatCard
+                        icon={CalendarDays}
+                        label="Séances créées cette année"
+                        value={teacherStats?.sessions_count}
+                        loading={teacherLoading}
+                    />
+                    <StatCard
+                        icon={CalendarX}
+                        label="Absences aujourd'hui"
+                        value={teacherStats?.absences_today}
+                        loading={teacherLoading}
+                    />
+                    <StatCard
+                        icon={CalendarRange}
+                        label="Absences cette semaine"
+                        value={teacherStats?.absences_this_week}
+                        loading={teacherLoading}
+                    />
+                    <StatCard
+                        icon={CalendarRange}
+                        label="Absences ce mois"
+                        value={teacherStats?.absences_this_month}
+                        loading={teacherLoading}
+                    />
+                    <StatCard
+                        icon={CalendarRange}
+                        label="Absences cette année"
+                        value={teacherStats?.absences_this_year}
+                        loading={teacherLoading}
+                    />
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card className="border rounded-none shadow-none ring-0">
+                        <CardHeader>
+                            <CardTitle className="text-base">Taux de présence global</CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex flex-col items-center gap-4">
+                            {teacherLoading ? (
+                                <div className="h-56 w-full flex items-center justify-center">
+                                    <Loader2 className="size-6 animate-spin text-muted-foreground" />
+                                </div>
+                            ) : (
+                                <ChartContainer config={attendanceConfig} className="h-56 w-full">
+                                    <PieChart>
+                                        <Pie
+                                            data={[
+                                                { name: "Présence", value: teacherStats?.attendance_rate?.presence ?? 0, fill: "#22c55e" },
+                                                { name: "Absence", value: teacherStats?.attendance_rate?.absence ?? 0, fill: "#ef4444" },
+                                            ]}
+                                            dataKey="value"
+                                            nameKey="name"
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={60}
+                                            outerRadius={90}
+                                            label={({ name, value }) => `${name} ${value}%`}
+                                            labelLine={false}
+                                        />
+                                        <Tooltip formatter={(value, name) => [`${value}%`, name]} />
+                                        <Legend />
+                                    </PieChart>
+                                </ChartContainer>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    <Card className="border rounded-none shadow-none ring-0">
+                        <CardHeader>
+                            <CardTitle className="text-base">Classes les plus absentes</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {teacherLoading ? (
+                                <div className="h-56 w-full flex items-center justify-center">
+                                    <Loader2 className="size-6 animate-spin text-muted-foreground" />
+                                </div>
+                            ) : teacherStats?.absences_by_class?.length === 0 ? (
+                                <p className="text-sm text-muted-foreground text-center py-8">Aucune donnée disponible.</p>
+                            ) : (
+                                <ChartContainer config={barConfig} className="h-56 w-full">
+                                    <BarChart data={teacherStats?.absences_by_class} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
+                                        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                                        <XAxis dataKey="class" tick={{ fontSize: 12 }} />
+                                        <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                                        <ChartTooltip content={<ChartTooltipContent />} />
+                                        <Bar dataKey="absences" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
+                                    </BarChart>
+                                </ChartContainer>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
+
+                <Card className="border rounded-none shadow-none ring-0">
+                    <CardHeader>
+                        <CardTitle className="text-base">Étudiants les plus absents</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {teacherLoading ? (
+                            <div className="h-40 w-full flex items-center justify-center">
+                                <Loader2 className="size-6 animate-spin text-muted-foreground" />
+                            </div>
+                        ) : teacherStats?.top_absent_students?.length === 0 ? (
+                            <p className="text-sm text-muted-foreground text-center py-8">Aucune donnée disponible.</p>
+                        ) : (
+                            <div className="divide-y">
+                                {teacherStats?.top_absent_students?.map((student) => (
+                                    <div key={student.id} className="flex items-center justify-between py-3 text-sm">
+                                        <div className="min-w-0">
+                                            <p className="font-medium truncate">{student.name}</p>
+                                            <p className="text-xs text-muted-foreground">{student.matricule} · {student.class}</p>
+                                        </div>
+                                        <span className="shrink-0 font-semibold tabular-nums text-red-600">{student.absences_count}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            </section>
+        )
+    }
 
     if (user?.role !== "admin") {
         return (
