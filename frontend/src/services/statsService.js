@@ -17,6 +17,10 @@ const statsService = {
         const response = await api.get("admin/stats/students-absence-hours", { params: { page, ...params } })
         return response.data
     },
+    async teacherIndex() {
+        const response = await api.get("teacher/stats")
+        return response.data
+    },
 }
 
 export default statsService
