@@ -4,10 +4,10 @@
 
 ### Système de Gestion des Absences pour BTS
 
-Application web full-stack destinée à la gestion académique et au suivi des absences au sein d'un établissement BTS.
+Application web full-stack de gestion académique et de suivi des absences pour un établissement BTS.
 
 [![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?style=flat-square&logo=laravel&logoColor=white)](https://laravel.com/)
-[![PHP](https://img.shields.io/badge/PHP-8.4%20recommended-777BB4?style=flat-square&logo=php&logoColor=white)](https://www.php.net/)
+[![PHP](https://img.shields.io/badge/PHP-8.4-777BB4?style=flat-square&logo=php&logoColor=white)](https://www.php.net/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vite.dev/)
@@ -19,56 +19,74 @@ Application web full-stack destinée à la gestion académique et au suivi des a
 
 ## À propos
 
-**SGA-BTS** est une application de gestion des absences conçue pour centraliser les principales opérations liées au suivi académique d'un établissement BTS.
+**SGA-BTS** est une application web conçue pour centraliser le suivi des absences et plusieurs opérations de gestion académique d'un établissement BTS.
 
-Le projet sépare le **frontend React** du **backend Laravel API** et s'appuie sur **PostgreSQL** pour la persistance des données. Il propose deux rôles applicatifs authentifiés : **administrateur** et **enseignant**.
+Le projet est organisé en deux applications distinctes :
 
-Le système couvre notamment la gestion des étudiants, enseignants, filières, classes, matières, années académiques, inscriptions, affectations, séances, absences, justifications, notifications et statistiques.
+- un **backend Laravel API** ;
+- un **frontend React**.
 
-> **Remarque :** dans la version actuelle, les étudiants sont des entités gérées par l'établissement ; ils ne disposent pas d'un rôle de connexion dédié.
+La persistance des données repose sur **PostgreSQL**.
+
+La version actuelle gère deux rôles applicatifs authentifiés :
+
+- **Administrateur**
+- **Enseignant**
+
+Les étudiants sont gérés comme des entités académiques et **ne disposent pas d'un compte de connexion dédié** dans l'implémentation actuelle.
 
 ---
 
-## Fonctionnalités
+## Fonctionnalités principales
 
 ### Administration
 
-- Gestion des étudiants
-- Gestion des enseignants
-- Gestion des filières
-- Gestion des classes
-- Gestion des matières
-- Gestion des années académiques
-- Gestion des inscriptions
-- Affectation des enseignants aux classes et années académiques
-- Gestion des séances
-- Consultation et gestion des absences
-- Gestion des justifications
-- Notification d'un étudiant à partir d'une absence
-- Import des étudiants depuis des fichiers **XLSX, XLS ou CSV**
-- Import des enseignants avec génération d'invitations
-- Prévisualisation des données avant import
-- Gestion des notifications internes
-- Tableau de bord et statistiques académiques
+L'administrateur peut notamment :
+
+- gérer les étudiants ;
+- gérer les enseignants ;
+- gérer les filières ;
+- gérer les classes ;
+- gérer les matières ;
+- gérer les années académiques ;
+- gérer les inscriptions des étudiants ;
+- gérer les affectations des enseignants aux classes et années académiques ;
+- créer, consulter, modifier et supprimer des séances selon les autorisations prévues ;
+- consulter et gérer les absences ;
+- gérer les justifications ;
+- activer ou désactiver les comptes enseignants ;
+- renvoyer une invitation à un enseignant ;
+- importer des étudiants depuis des fichiers **XLSX, XLS ou CSV** ;
+- importer des enseignants depuis des fichiers **XLSX, XLS ou CSV** ;
+- prévisualiser les données avant import ;
+- consulter les notifications internes liées aux appels et aux absences ;
+- marquer les notifications comme lues ;
+- envoyer manuellement un rappel d'absence par e-mail à un étudiant ;
+- consulter les statistiques académiques du tableau de bord.
 
 ### Enseignants
 
-- Authentification via compte enseignant
-- Activation du compte via invitation
-- Consultation des classes et étudiants accessibles
-- Création et gestion des séances
-- Enregistrement des absences d'une séance
-- Consultation et modification des absences autorisées
-- Tableau de bord enseignant
-- Statistiques par période, classe et étudiant
+Un enseignant peut notamment :
+
+- se connecter avec son compte ;
+- activer son compte via une invitation lorsqu'il est créé par ce mécanisme ;
+- consulter les ressources auxquelles son rôle donne accès ;
+- consulter et gérer ses séances selon les règles d'autorisation ;
+- effectuer l'appel d'une séance ;
+- enregistrer les absences d'une séance ;
+- consulter les absences ;
+- modifier ou supprimer les absences qu'il est autorisé à gérer ;
+- consulter son tableau de bord et ses statistiques.
 
 ### Profil et compte
 
-- Modification des informations personnelles
-- Téléversement et suppression d'un avatar
-- Modification de l'adresse e-mail avec vérification
-- Modification du mot de passe
-- Désactivation des comptes utilisateurs côté administration
+Les utilisateurs authentifiés peuvent notamment :
+
+- modifier leurs informations personnelles ;
+- téléverser ou supprimer un avatar ;
+- demander la modification de leur adresse e-mail ;
+- confirmer une nouvelle adresse e-mail via un code de vérification ;
+- modifier leur mot de passe.
 
 ---
 
@@ -76,23 +94,23 @@ Le système couvre notamment la gestion des étudiants, enseignants, filières, 
 
 ### Tableau de bord administrateur
 
-Le tableau de bord administrateur fournit notamment :
+Le tableau de bord administrateur exploite l'année académique sélectionnée et présente notamment :
 
-- nombre total d'absences ;
-- nombre d'étudiants inscrits pour l'année académique sélectionnée ;
-- nombre d'enseignants affectés ;
-- absences de la veille ;
-- absences de la semaine ;
-- absences du mois ;
-- absences de l'année ;
-- répartition des absences par classe ;
-- répartition des absences justifiées / non justifiées ;
-- absences par enseignant et matière ;
-- étudiant avec le plus grand volume d'heures d'absence ;
-- alerte lorsqu'un étudiant dépasse le seuil configuré ;
-- alerte en cas d'absences sur plusieurs séances consécutives.
+- le nombre total d'absences ;
+- le nombre d'étudiants inscrits ;
+- le nombre d'enseignants affectés ;
+- les absences de la veille ;
+- les absences de la semaine ;
+- les absences du mois ;
+- les absences de l'année ;
+- les absences par classe ;
+- la répartition entre absences justifiées et non justifiées ;
+- les absences par enseignant et matière ;
+- l'étudiant ayant le plus grand volume d'heures d'absence ;
+- le nombre d'étudiants dépassant le seuil d'absence configuré ;
+- les alertes liées aux absences sur plusieurs séances consécutives.
 
-Les valeurs par défaut sont configurées dans `backend/config/absences.php` :
+Les valeurs par défaut sont définies dans `backend/config/absences.php` :
 
 ```text
 Seuil d'absence : 480 minutes
@@ -103,14 +121,14 @@ Alerte d'absences consécutives : 4 séances
 
 Le tableau de bord enseignant présente notamment :
 
-- séances créées ;
-- absences du jour ;
-- absences de la semaine ;
-- absences du mois ;
-- absences de l'année ;
-- taux global de présence ;
-- classes les plus absentes ;
-- étudiants les plus absents.
+- le nombre de séances créées sur l'année académique courante ;
+- les absences du jour ;
+- les absences de la semaine ;
+- les absences du mois ;
+- les absences de l'année ;
+- le taux global de présence ;
+- les classes les plus absentes ;
+- les étudiants les plus absents.
 
 ---
 
@@ -118,37 +136,38 @@ Le tableau de bord enseignant présente notamment :
 
 ```mermaid
 flowchart LR
-    U["Admin / Enseignant"] --> FE["Frontend<br/>React 19 + Vite 8"]
+    U["Administrateur / Enseignant"] --> FE["Frontend<br/>React 19 + Vite 8"]
     FE -->|"Axios + cookies + CSRF"| API["Laravel 13 API"]
     API --> AUTH["Sanctum<br/>Middleware de rôles<br/>Policies"]
     API --> DB[("PostgreSQL")]
-    API --> JOBS["Jobs / Notifications / E-mails"]
+    API --> MAIL["E-mails / Invitations"]
+    API --> NOTIF["Notifications internes"]
 ```
 
 Le backend utilise notamment :
 
-- Controllers
-- Form Requests
-- API Resources
-- Services
-- Repositories
-- Policies
-- Middleware
-- Enums
-- Jobs
-- Eloquent Models
+- Controllers ;
+- Form Requests ;
+- API Resources ;
+- Services ;
+- Repositories ;
+- Policies ;
+- Middleware ;
+- Enums ;
+- Jobs ;
+- Eloquent Models.
 
 Le frontend utilise notamment :
 
-- React Router
-- Axios
-- React Hook Form
-- Zod
-- Recharts
-- Tailwind CSS
-- shadcn
-- Sonner
-- Lucide React
+- React Router ;
+- Axios ;
+- React Hook Form ;
+- Zod ;
+- Recharts ;
+- Tailwind CSS ;
+- shadcn ;
+- Sonner ;
+- Lucide React.
 
 ---
 
@@ -174,20 +193,25 @@ Le frontend utilise notamment :
 
 ## Contrôle d'accès et sécurité applicative
 
-La version actuelle intègre plusieurs mécanismes de protection :
+La version actuelle intègre plusieurs mécanismes de sécurité applicative :
 
-- authentification stateful avec Laravel Sanctum ;
-- protection CSRF pour les requêtes du frontend ;
-- limitation du endpoint de connexion à `10` tentatives par minute ;
+- authentification stateful avec **Laravel Sanctum** ;
+- protection CSRF utilisée par le frontend ;
+- limitation du endpoint de connexion à **10 tentatives par minute** ;
 - séparation des rôles `admin` et `teacher` ;
 - middleware de contrôle des rôles ;
-- Policies Laravel sur les principales ressources ;
-- invalidation de session lorsqu'un compte devient inactif ;
+- Policies Laravel pour contrôler l'accès à plusieurs ressources ;
+- vérification du statut actif ou inactif des utilisateurs ;
+- invalidation de la session lorsqu'un compte authentifié est désactivé ;
+- régénération de session après authentification ;
+- invalidation de session et régénération du token CSRF à la déconnexion ;
 - validation serveur via Form Requests ;
+- contrôle des actions sensibles liées aux séances et aux absences ;
 - invitations temporaires pour l'activation des comptes enseignants ;
-- restrictions sur les opérations liées aux séances et aux absences.
+- validation des fichiers d'import ;
+- limitation de l'envoi répété d'un rappel d'absence par e-mail.
 
-Les autorisations sensibles restent validées côté backend ; le frontend ne constitue pas la barrière de sécurité principale.
+> Le frontend applique des contrôles d'affichage et de navigation, mais les autorisations sensibles restent validées côté backend.
 
 ---
 
@@ -235,20 +259,30 @@ SGA-BTS/
 
 ## Prérequis
 
-Avant de lancer le projet, installez :
+Pour reproduire l'environnement correspondant au lockfile actuel, prévoyez :
 
-- **PHP 8.4 recommandé** pour le lockfile actuel ;
+- **PHP 8.4** ;
 - Composer ;
 - PostgreSQL ;
-- Node.js compatible avec les dépendances du lockfile ;
+- **Node.js 24.15+ recommandé sur la branche 24.x** ;
 - npm ;
 - Git.
 
-### À propos des versions PHP et Node.js
+### Compatibilité PHP
 
-Le fichier `backend/composer.json` déclare actuellement `php: ^8.3`, mais l'arbre de dépendances verrouillé peut nécessiter **PHP 8.4**. Si `composer install` échoue sous PHP 8.3 avec une contrainte provenant de Symfony 8, utilisez PHP 8.4.
+`backend/composer.json` déclare actuellement :
 
-Avec l'arbre npm actuel, certaines versions de Node.js peuvent également produire un avertissement `EBADENGINE`. Une version récente satisfaisant les contraintes des dépendances est recommandée.
+```text
+php: ^8.3
+```
+
+Cependant, avec le `composer.lock` actuel, certaines dépendances verrouillées nécessitent PHP 8.4. Pour une installation reproductible avec l'état actuel du dépôt, **PHP 8.4 est donc recommandé**.
+
+### Compatibilité Node.js
+
+Avec certaines versions de Node.js légèrement antérieures, `npm install` peut afficher un avertissement `EBADENGINE` provenant d'une dépendance transitive.
+
+Une version **Node.js 24.15 ou plus récente dans la branche 24.x** évite la contrainte observée avec le lockfile actuel.
 
 ---
 
@@ -265,7 +299,7 @@ cd SGA-BTS
 
 ### 2. Préparer PostgreSQL
 
-Créez une base de données et un utilisateur PostgreSQL adaptés à votre environnement.
+Créez une base de données PostgreSQL et un utilisateur dédié.
 
 Exemple :
 
@@ -273,6 +307,8 @@ Exemple :
 CREATE USER sga_user WITH PASSWORD 'change_me';
 CREATE DATABASE sga_bts OWNER sga_user;
 ```
+
+Adaptez les noms et mots de passe à votre environnement.
 
 ---
 
@@ -285,19 +321,19 @@ composer install
 
 Créez le fichier `.env`.
 
-Linux / macOS :
+#### Linux / macOS
 
 ```bash
 cp .env.example .env
 ```
 
-Windows PowerShell :
+#### Windows PowerShell
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Configurez au minimum les variables suivantes :
+Configurez au minimum les paramètres suivants :
 
 ```env
 APP_NAME="SGA BTS"
@@ -333,7 +369,7 @@ Exécutez les migrations et les seeders :
 php artisan migrate --seed
 ```
 
-Créez le lien de stockage public pour les avatars :
+Créez le lien vers le stockage public utilisé notamment pour les avatars :
 
 ```bash
 php artisan storage:link
@@ -345,17 +381,29 @@ Démarrez le backend :
 php artisan serve --host=localhost --port=8000
 ```
 
-Le backend est alors accessible sur :
+Le serveur Laravel sera accessible sur :
 
 ```text
 http://localhost:8000
+```
+
+L'API est exposée sous :
+
+```text
+http://localhost:8000/api
+```
+
+Le endpoint de santé Laravel est disponible sur :
+
+```text
+http://localhost:8000/up
 ```
 
 ---
 
 ### 4. Installer et configurer le frontend
 
-Ouvrez un second terminal :
+Ouvrez un second terminal depuis la racine du projet :
 
 ```bash
 cd frontend
@@ -364,26 +412,26 @@ npm install
 
 Créez le fichier `.env`.
 
-Linux / macOS :
+#### Linux / macOS
 
 ```bash
 cp .env.example .env
 ```
 
-Windows PowerShell :
+#### Windows PowerShell
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Configuration par défaut :
+Le fichier `frontend/.env.example` utilise :
 
 ```env
 VITE_API_BASE_URL=http://localhost:8000
 VITE_APP_NAME=BTS
 ```
 
-Vérifiez le build :
+Vérifiez que le frontend se construit correctement :
 
 ```bash
 npm run build
@@ -403,6 +451,38 @@ http://localhost:5173
 
 ---
 
+## E-mails et file d'attente
+
+Le projet utilise les e-mails pour plusieurs flux, notamment :
+
+- invitation d'un enseignant ;
+- vérification d'une nouvelle adresse e-mail ;
+- rappel manuel d'absence envoyé à un étudiant.
+
+Dans `.env.example`, le mailer par défaut est :
+
+```env
+MAIL_MAILER=log
+```
+
+Avec cette configuration, les e-mails sont écrits dans les logs au lieu d'être envoyés à un serveur SMTP réel.
+
+Pour envoyer de vrais e-mails, configurez les variables `MAIL_*` avec votre fournisseur SMTP.
+
+Le projet utilise également :
+
+```env
+QUEUE_CONNECTION=database
+```
+
+L'import en masse des enseignants déclenche des jobs d'envoi d'invitation. Pour traiter ces jobs, gardez un worker actif :
+
+```bash
+php artisan queue:work
+```
+
+---
+
 ## Données de démonstration
 
 Le `DatabaseSeeder` actuel exécute :
@@ -413,45 +493,60 @@ Le `DatabaseSeeder` actuel exécute :
 
 Il crée par défaut :
 
-- `1` compte administrateur ;
-- `10` enseignants ;
-- `50` étudiants.
+- **1 administrateur** ;
+- **10 enseignants** ;
+- **50 étudiants**.
 
-Les identifiants administrateur proviennent de :
+### Compte administrateur
+
+Les identifiants proviennent des variables :
 
 ```env
 ADMIN_EMAIL=
 ADMIN_PASSWORD=
 ```
 
-Le fichier `.env.example` utilise actuellement :
+Le `.env.example` fournit actuellement comme valeurs de développement :
 
 ```text
 admin@example.com
 password
 ```
 
-> Ces identifiants sont uniquement adaptés au développement local. Changez-les avant tout environnement partagé ou exposé.
+### Comptes enseignants générés par les factories
+
+Les comptes utilisateurs créés par `UserFactory` pour les enseignants utilisent le mot de passe de développement :
+
+```text
+bts@2026
+```
+
+Les adresses e-mail sont générées par Faker.
+
+> Les identifiants ci-dessus sont destinés au développement local. Ils doivent être remplacés dans tout environnement partagé ou exposé.
 
 ---
 
-## Première utilisation
+## Configuration initiale importante
 
 Après une installation fraîche, les seeders actuels **ne créent pas d'année académique**.
 
-Avant d'utiliser pleinement le tableau de bord administrateur :
+Le tableau de bord et plusieurs calculs statistiques dépendent d'une année académique courante.
 
-1. connectez-vous avec le compte administrateur ;
-2. ouvrez **Années académiques** ;
-3. créez une année, par exemple `2026-2027` ;
-4. définissez-la comme **année en cours** ;
-5. configurez ensuite les filières, matières et classes ;
-6. inscrivez les étudiants ;
-7. affectez les enseignants ;
-8. créez les séances ;
-9. enregistrez les absences.
+Après la première connexion administrateur :
 
-Workflow recommandé :
+1. ouvrez **Années académiques** ;
+2. créez une année académique ;
+3. définissez-la comme **année en cours** ;
+4. créez ou configurez les filières ;
+5. créez les matières ;
+6. créez les classes ;
+7. inscrivez les étudiants ;
+8. affectez les enseignants aux classes et à l'année académique ;
+9. créez les séances ;
+10. enregistrez les absences.
+
+Workflow fonctionnel recommandé :
 
 ```text
 Année académique
@@ -466,9 +561,11 @@ Affectations des enseignants
         ↓
 Séances
         ↓
-Absences + Justifications
+Appel / Absences
         ↓
-Statistiques
+Justifications
+        ↓
+Statistiques et alertes
 ```
 
 ---
@@ -481,15 +578,17 @@ L'administration peut importer des étudiants et des enseignants depuis :
 - `.xls`
 - `.csv`
 
-Taille maximale actuellement validée côté backend :
+La taille maximale validée côté backend pour le fichier de prévisualisation est actuellement :
 
 ```text
 5 Mo
 ```
 
-Le système propose une étape de prévisualisation avant l'import définitif.
+Une étape de prévisualisation permet d'analyser les données avant l'import définitif.
 
-Pour les étudiants, les colonnes reconnues incluent notamment :
+### Colonnes reconnues pour les étudiants
+
+Le normaliseur accepte notamment :
 
 ```text
 matricule
@@ -501,7 +600,36 @@ phone / telephone
 address / adresse
 ```
 
-Pour les enseignants, l'e-mail est requis lors de l'import afin de créer le compte utilisateur et l'invitation associée.
+### Colonnes reconnues pour les enseignants
+
+Le normaliseur accepte notamment :
+
+```text
+matricule
+first_name / prenom
+last_name / nom
+email / mail
+birth_date / naissance
+phone / telephone
+address / adresse
+```
+
+Pour les enseignants, l'adresse e-mail est requise lors de l'import définitif afin de créer le compte utilisateur et l'invitation associée.
+
+---
+
+## Règles métier importantes
+
+Quelques règles présentes dans l'implémentation actuelle :
+
+- un enseignant ne peut effectuer l'appel que pour une séance qui lui appartient ;
+- l'appel d'une séance ne peut être enregistré qu'avant que `called_at` soit défini ;
+- après l'appel, les absences de la séance sont enregistrées et la séance reçoit un horodatage `called_at` ;
+- un enseignant ne peut modifier ou supprimer que les absences qu'il est autorisé à gérer ;
+- l'administrateur dispose de droits plus larges sur les absences et leur statut ;
+- les utilisateurs inactifs ne peuvent pas se connecter ;
+- une session active est invalidée si le compte devient inactif ;
+- le rappel manuel d'absence envoyé à un étudiant est limité afin d'éviter les envois répétés immédiats.
 
 ---
 
@@ -512,7 +640,10 @@ Pour les enseignants, l'e-mail est requis lors de l'import afin de créer le com
 ```bash
 composer install
 php artisan migrate --seed
+php artisan migrate:status
+php artisan storage:link
 php artisan serve
+php artisan queue:work
 composer test
 ```
 
@@ -530,51 +661,26 @@ npm run preview
 
 ## Vérification rapide de l'installation
 
-Backend :
+### Backend
 
 ```bash
 php artisan migrate:status
 ```
 
-Frontend :
+### Frontend
 
 ```bash
 npm run build
 ```
 
-Application :
+### Endpoints locaux
 
 ```text
 Frontend : http://localhost:5173
 Backend  : http://localhost:8000
+API      : http://localhost:8000/api
 Health   : http://localhost:8000/up
 ```
-
----
-
-## Contribution
-
-Les contributions peuvent être proposées via Pull Request.
-
-Workflow recommandé :
-
-```bash
-git fork / clone
-git checkout -b docs/improve-readme
-# effectuer les modifications
-git add .
-git commit -m "docs: improve project documentation"
-git push origin docs/improve-readme
-```
-
-Ouvrez ensuite une Pull Request vers la branche `main` du dépôt principal.
-
-Pour faciliter la revue :
-
-- gardez chaque Pull Request centrée sur un objectif précis ;
-- décrivez clairement ce qui a changé ;
-- évitez de mélanger documentation, refactoring et nouvelles fonctionnalités dans la même PR ;
-- vérifiez le build avant soumission.
 
 ---
 
